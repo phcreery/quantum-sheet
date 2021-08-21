@@ -1,4 +1,5 @@
 <template>
+  <!-- prettier-ignore -->
   <div
     class="quantum-document"
     :class="'theme-paper-' + document.options.paperStyle"
@@ -10,7 +11,10 @@
       'min-width': `${pages.width.value}mm`,
       'min-height': `calc(${pages.height.value}mm * ${pages.pageCount.value})`,
     }"
-    @pointerdown="grid.pointerDown($event)"
+    @pointerdown="
+      grid.pointerDown($event);
+      elementDrag.removeDragging();
+    "
     @contextmenu="
       (e) => {
         e.preventDefault()
@@ -44,13 +48,13 @@
       <span class="next-page-number">{{ page + 1 }}</span>
     </div>
     <div
-      class="quantum-block"
+      class="quantum-block hoverable"
       v-for="element in document.elements"
       :key="element.id"
       :id="element.id"
       :style="grid.gridToStyle(element.position.value)"
       :class="{ selected: element.selected.value }"
-      @pointerdown="() => {}"
+      @mousedown="elementDrag.makeDraggable"
     >
       <component
         :is="getTypeComponent(element.typeName)"
@@ -74,6 +78,8 @@ import { Vector2 } from '../model/vectors'
 import { QuantumElement, JsonType } from '../model/document/document-element'
 import { useUI } from './ui'
 import interact from 'interactjs'
+import Moveable from 'moveable'
+import Selecto from 'selecto'
 
 function useClipboard<T extends QuantumDocumentElementTypes>(document: UseQuantumDocument<T>) {
   function cut(ev: ClipboardEvent) {}
@@ -183,6 +189,31 @@ function useGrid<T extends QuantumDocumentElementTypes>(
   }
 }
 
+function useElementSelection<T extends QuantumDocumentElementTypes>(quantumDocument: UseQuantumDocument<T>) {
+  const selecto = new Selecto({
+    // The container to add a selection element
+    container: document.body,
+    // Selecto's root container (No transformed container. (default: null)
+    rootContainer: null,
+    // The area to drag selection element (default: container)
+    dragContainer: Element,
+    // Targets to select. You can register a queryselector or an Element.
+    selectableTargets: ['.target', document.querySelector('.target2')],
+    // Whether to select by click (default: true)
+    selectByClick: true,
+    // Whether to select from the target inside (default: true)
+    selectFromInside: true,
+    // After the select, whether to select the next target with the selected target (deselected if the target is selected again).
+    continueSelect: false,
+    // Determines which key to continue selecting the next target via keydown and keyup.
+    toggleContinueSelect: 'shift',
+    // The container for keydown and keyup events
+    keyContainer: window,
+    // The rate at which the target overlaps the drag area to be selected. (default: 100)
+    hitRate: 100,
+  })
+}
+
 function useElementDrag<T extends QuantumDocumentElementTypes>(quantumDocument: UseQuantumDocument<T>, pages) {
   // TODO: Investigate
   // I got stuff to break by adding a few blocks, moving them around and stuff
@@ -204,6 +235,7 @@ function useElementDrag<T extends QuantumDocumentElementTypes>(quantumDocument: 
         }),
       ],
       inertia: false,
+      autoScroll: true,
     })
     .on('down', (event) => {
       event.target?.classList.add('dragging')
@@ -218,6 +250,96 @@ function useElementDrag<T extends QuantumDocumentElementTypes>(quantumDocument: 
       event.target?.classList.remove('dragging')
       pages.updatePageCount()
     })
+}
+
+function useNewElementDrag<T extends QuantumDocumentElementTypes>(quantumDocument: UseQuantumDocument<T>, pages) {
+  console.log('drag', document.body, document.querySelector('.quantum-block'))
+
+  const moveable = new Moveable(document.body, {
+    target: document.querySelector('.quantum-block'),
+    // className: 'quantum-block',
+    // If the container is null, the position is fixed. (default: parentElement(document.body))
+    container: document.body,
+    draggable: true,
+    padding: { left: 0, top: -1, right: -1, bottom: -1 },
+    scrollable: true,
+    resizable: false,
+    scalable: false,
+    rotatable: false,
+    warpable: false,
+    // Enabling pinchable lets you use events that
+    // can be used in draggable, resizable, scalable, and rotateable.
+    pinchable: false, // ["resizable", "scalable", "rotatable"]
+    origin: false,
+    keepRatio: true,
+    // Resize, Scale Events at edges.
+    edge: false,
+    throttleDrag: quantumDocument.options.gridCellSize.x,
+    throttleResize: 0,
+    throttleScale: 0,
+    throttleRotate: 0,
+  })
+  /* draggable */
+  moveable
+    .on('dragStart', ({ target, clientX, clientY }) => {
+      console.log('onDragStart', target)
+      // target?.classList.remove('hoverable')
+      target?.classList.add('dragging')
+      // target.style.cursor = 'move'
+      // target.setAttribute('style', 'cursor: move !important')
+      // target.parentElement.style.cursor = 'move'
+      // window.setCursor('move')
+
+      document.documentElement.setAttribute('class', 'dragging')
+    })
+    .on('drag', ({ target, transform, left, top, right, bottom, beforeDelta, beforeDist, delta, dist, clientX, clientY }) => {
+      console.log('onDrag left, top', left, top, delta, dist)
+      const quantumElement = quantumDocument.getElementById(target.id)
+      let deltaVector = new Vector2(delta[0] / quantumDocument.options.gridCellSize.x, delta[1] / quantumDocument.options.gridCellSize.y)
+      let newPos = quantumElement?.position.value.add(deltaVector)
+      if (newPos) quantumElement?.setPosition(newPos)
+    })
+    .on('dragEnd', ({ target, isDrag, clientX, clientY }) => {
+      console.log('onDragEnd', target, isDrag)
+      // target?.classList.add('hoverable')
+      target?.classList.remove('dragging')
+      // target.style.cursor = 'unset'
+      // target.parentElement.style.cursor = 'unset'
+      // element.releaseCapture()
+    })
+
+  // function makeMovable() {
+  //   moveable.target = document.querySelectorAll('.quantum-block')
+  // }
+
+  function makeDraggable(e) {
+    console.log(e)
+    // moveable.target = e.target
+    // if (!moveable.isMoveableElement(e.target)) {
+    // moveable.dragStart(e)
+    // }
+    moveable.setState(
+      {
+        target: e.target,
+      },
+      () => {
+        moveable.dragStart(e)
+      }
+    )
+  }
+
+  function removeDragging() {
+    moveable.target = undefined
+  }
+
+  // watch(quantumDocument.elements, (value) => {
+  //   makeMovable()
+  // })
+
+  return {
+    makeDraggable,
+    removeDragging,
+  }
 }
 
 function usePages<T extends QuantumDocumentElementTypes>(quantumDocument: UseQuantumDocument<T>) {
@@ -316,7 +438,9 @@ export default defineComponent({
     const grid = useGrid(document, documentInputElement, focusedElementCommands.commands)
     const pages = usePages(document)
     const clipboard = useClipboard(document)
-    const elementDrag = useElementDrag(document, pages)
+    // const selection = useElementSelection(document)
+    // const elementDrag = useElementDrag(document, pages)
+    const elementDrag = useNewElementDrag(document, pages)
 
     function log(ev: any) {
       console.log(ev)
@@ -349,6 +473,8 @@ export default defineComponent({
       grid,
       pages,
       clipboard,
+      elementDrag,
+
       getTypeComponent,
       log,
 
@@ -393,24 +519,37 @@ export default defineComponent({
   position: absolute;
   min-width: 50px;
   padding: 4px;
-  margin: 1px;
+  /* margin: 1px; */
+
+  /* box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box; */
 }
 
-.quantum-block:hover {
+/* .quantum-block:hover {
   border: 1px solid var(--selected-color);
   margin: 0px;
+} */
+.quantum-block.hoverable:hover {
+  /* border: 1px solid var(--selected-color); */
+  /* margin: 0px; */
+  box-shadow: 0px 0px 0px 1px var(--selected-color) inset;
+  cursor: move;
 }
 .quantum-block.dragging {
-  border: 1px solid var(--selected-color);
-  margin: 0px;
+  /* border: 1px solid var(--selected-color);
+  margin: 0px; */
+  box-shadow: 0px 0px 0px 1px var(--selected-color) inset;
 }
 .quantum-block:focus-within {
-  border: 1px dashed var(--selected-color);
-  margin: 0px;
+  /* border: 1px dashed var(--selected-color); */
+  /* margin: -1px; */
+  box-shadow: 0px 0px 0px 1px var(--selected-color) inset;
 }
 .quantum-block.selected {
-  border: 1px solid var(--selected-color);
-  margin: 0px;
+  /* border: 1px solid var(--selected-color); */
+  /* margin: 0px; */
+  box-shadow: 0px 0px 0px 1px var(--selected-color) inset;
   background: var(--selected-background-color);
 }
 
@@ -456,5 +595,19 @@ export default defineComponent({
 
 .next-page-number {
   top: 4px;
+}
+</style>
+
+<style>
+.moveable-line {
+  /* all: none !important; */
+  all: initial !important;
+  /* cursor: move; */
+  /* position: absolute; */
+  /* width: 0.5px; */
+  /* height: 0.5px; */
+  /* background: rgba(57, 131, 180, 0.459) !important; */
+  /* background: rgba(180, 57, 98, 0.459) !important; */
+  /* transform-origin: 0px 0.5px; */
 }
 </style>
