@@ -14,21 +14,15 @@
             :options="[
               {
                 label: 'New',
-                key: () => {
-                  UI.fileInterface.promptNewFile()
-                },
+                key: () => UI.fileInterface.promptNewFile(),
               },
               {
                 label: 'Open',
-                key: () => {
-                  UI.fileInterface.openFileOpenModal()
-                },
+                key: () => UI.fileInterface.openFileOpenModal(),
               },
               {
                 label: 'Save',
-                key: () => {
-                  UI.fileInterface.openFileSaveModal()
-                },
+                key: () => UI.fileInterface.openFileSaveModal(),
               },
             ]"
           >
@@ -37,10 +31,13 @@
           <n-dropdown
             placement="bottom-start"
             trigger="click"
+            @select="handleSelect"
             :options="[
               {
-                label: 'Marina Bay Sands',
-                key: 'Marina Bay Sands',
+                label: 'Document Preferences',
+                key: () => {
+                  UI.fileInterface.documentPrefsModal.value = true
+                },
               },
             ]"
           >
@@ -49,8 +46,8 @@
         </n-space>
       </n-gi>
       <n-gi>
-        <n-space justify="center" size="large" align="center" :style="{ marginTop: '0px', padding: '0px', height: '36px' }">
-          <p>v{{ pkg.version }} - <a href="https://github.com/stefnotch/quantum-sheet">View on GitHub</a></p>
+        <n-space justify="end" size="large" align="center" :style="{ marginTop: '0px', padding: '0px', height: '36px' }">
+          <p style="margin: 0px">v{{ pkg.version }} - <a href="https://github.com/stefnotch/quantum-sheet">View on GitHub</a></p>
           <div :style="{ width: '20px' }" />
         </n-space>
       </n-gi>
@@ -94,7 +91,7 @@
     <a-modal
       v-if="docManager.currentDocument.value"
       v-model:visible="UI.fileInterface.documentPrefsModal.value"
-      title="Document Prefereences"
+      title="Document Preferences"
       ok-text="Done"
       @ok="UI.fileInterface.closeDocPrefsModal()"
     >
