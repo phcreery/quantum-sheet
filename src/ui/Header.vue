@@ -216,3 +216,10 @@ export default defineComponent({
   line-height: 36px !important;
 }
 </style>
+
+<style>
+/* Symmetric Menu Transition */
+.v-binder-follower-content {
+  transform-origin: top !important;
+}
+</style>
