@@ -59,6 +59,7 @@ function useCasStatus() {
 
 function useFileInterface() {
   function promptNewFile() {
+    console.log('new file modal')
     fileNewModal.value = true
   }
   function promptCloseFile() {

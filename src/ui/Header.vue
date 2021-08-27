@@ -1,51 +1,62 @@
 <template>
   <header class="header">
-    <a-row type="flex" justify="space-between" :style="{ height: '36px', lineHeight: '36px', paddingLeft: '20px' }">
-      <a-col :span="4">
-        <a-space :style="{ height: '36px', alignItems: 'revert' }">
-          <div :style="{ width: '10px' }" />
-          <h3 @click="() => {}" :style="{ cursor: 'pointer', margin: 0, width: '110px' }">QuantumSheet</h3>
+    <n-grid :x-gap="12" :cols="2" :style="{ height: '36px' }">
+      <n-gi>
+        <n-space :style="{ marginTop: '0px', paddingTop: '0px', height: '36px' }" :size="0">
           <div :style="{ width: '16px' }" />
-          <a-dropdown placement="bottomLeft" :trigger="['click']">
-            <a-button ghost style="height: 36px; color: black">File</a-button>
-            <template #overlay>
-              <a-menu>
-                <a-menu-item @click="UI.fileInterface.promptNewFile()">
-                  <a :style="{ color: 'black' }">New</a>
-                </a-menu-item>
-                <a-menu-item @click="UI.fileInterface.openFileOpenModal()">
-                  <a :style="{ color: 'black' }">Open...</a>
-                </a-menu-item>
-                <a-menu-item @click="UI.fileInterface.openFileSaveModal()">
-                  <a :style="{ color: 'black' }">Save as...</a>
-                </a-menu-item>
-                <!-- <a-menu-item @click="UI.promptCloseFile()">
-                  <a :style="{ color: 'black' }">Close</a>
-                </a-menu-item> -->
-              </a-menu>
-            </template>
-          </a-dropdown>
-          <a-dropdown placement="bottomLeft" :trigger="['click']">
-            <a-button ghost style="height: 36px; color: black">Edit</a-button>
-            <template #overlay>
-              <a-menu>
-                <a-menu-item @click="() => (UI.fileInterface.documentPrefsModal.value = true)">
-                  <a :style="{ color: 'black' }">Document Preferences</a>
-                </a-menu-item>
-              </a-menu>
-            </template>
-          </a-dropdown>
-        </a-space>
-      </a-col>
-
-      <a-col>
-        <a-space :style="{ height: '36px' }">
+          <!-- <h3 @click="() => {}" :style="{ cursor: 'pointer', margin: 0, width: '110px', height: '36px' }">QuantumSheet</h3> -->
+          <n-gradient-text type="info" :size="22" :style="{ cursor: 'pointer' }"> QuantumSheet </n-gradient-text>
+          <div :style="{ width: '16px' }" />
+          <n-dropdown
+            placement="bottom-start"
+            trigger="click"
+            @select="handleSelect"
+            :options="[
+              {
+                label: 'New',
+                key: () => {
+                  UI.fileInterface.promptNewFile()
+                },
+              },
+              {
+                label: 'Open',
+                key: () => {
+                  UI.fileInterface.openFileOpenModal()
+                },
+              },
+              {
+                label: 'Save',
+                key: () => {
+                  UI.fileInterface.openFileSaveModal()
+                },
+              },
+            ]"
+          >
+            <n-button :style="{ height: '36px', '--border': 'none', '--border-radius': '0px', '--ripple-color': 'rgba(0,0,0,0)' }"> File </n-button>
+          </n-dropdown>
+          <n-dropdown
+            placement="bottom-start"
+            trigger="click"
+            :options="[
+              {
+                label: 'Marina Bay Sands',
+                key: 'Marina Bay Sands',
+              },
+            ]"
+          >
+            <n-button :style="{ height: '36px', '--border': 'none', '--border-radius': '0px', '--ripple-color': 'rgba(0,0,0,0)' }"> Edit </n-button>
+          </n-dropdown>
+        </n-space>
+      </n-gi>
+      <n-gi>
+        <n-space justify="center" size="large" align="center" :style="{ marginTop: '0px', padding: '0px', height: '36px' }">
           <p>v{{ pkg.version }} - <a href="https://github.com/stefnotch/quantum-sheet">View on GitHub</a></p>
           <div :style="{ width: '20px' }" />
-        </a-space>
-      </a-col>
-    </a-row>
+        </n-space>
+      </n-gi>
+    </n-grid>
   </header>
+
   <teleport to="#modal">
     <!-- OPEN modal -->
     <a-modal v-model:visible="UI.fileInterface.fileOpenModal.value" title="Open File" ok-text="Open" @ok="UI.fileInterface.confirmFileOpenModal()">
@@ -132,10 +143,19 @@ import pkg from '../../package.json'
 import * as UI from './ui'
 import { useDocumentManager } from '../model/document/document-manager'
 
+import { NButton, NGrid, NGridItem, NGi, NSpace, NDropdown, NGradientText } from 'naive-ui'
+
 export default defineComponent({
   components: {
     InboxOutlined,
     DownloadOutlined,
+    NGrid,
+    NGridItem,
+    NGi,
+    NSpace,
+    NButton,
+    NDropdown,
+    NGradientText,
   },
   setup(props, context) {
     // const UI = useUI()
@@ -170,12 +190,17 @@ export default defineComponent({
       return false // to prevent antd fron trying to upload somewhere
     }
 
+    function handleSelect(key) {
+      key()
+    }
+
     return {
       UI,
       docManager,
       download,
       beforeUpload,
       pkg,
+      handleSelect,
     }
   },
 })
@@ -185,8 +210,10 @@ export default defineComponent({
 .header {
   z-index: 1;
   width: 100%;
+  height: 36px;
   box-shadow: 0px 0px 5px 0.1px #ccc;
   background: rgb(255, 255, 255);
+  display: inline-block;
 }
 .ant-menu-horizontal {
   line-height: 36px !important;
