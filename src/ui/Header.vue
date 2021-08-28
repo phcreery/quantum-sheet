@@ -10,6 +10,7 @@
           <n-dropdown
             placement="bottom-start"
             trigger="click"
+            :animated="true"
             @select="handleSelect"
             :options="[
               {
@@ -31,6 +32,7 @@
           <n-dropdown
             placement="bottom-start"
             trigger="click"
+            :animated="true"
             @select="handleSelect"
             :options="[
               {
@@ -219,7 +221,7 @@ export default defineComponent({
 
 <style>
 /* Symmetric Menu Transition */
-.v-binder-follower-content {
+/* .v-binder-follower-content {
   transform-origin: top !important;
-}
+} */
 </style>

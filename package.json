@@ -20,6 +20,7 @@
   "scripts": {
     "start": "vite",
     "dev": "vite",
+    "dev:force": "vite --force",
     "build": "vite build",
     "deploy": "vite build --base=/quantum-sheet/ && node utils/publish.js",
     "download:pyodide": "node ./utils/download-pyodide.js"
