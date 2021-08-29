@@ -65,6 +65,7 @@
       content="Are you sure?"
       positive-text="Open"
       @positive-click="UI.fileInterface.confirmFileOpenModal()"
+      :show-icon="false"
     >
       <n-input
         v-model:value="UI.fileInterface.serializedDocument.value"
@@ -98,6 +99,7 @@
       preset="dialog"
       positive-text="Done"
       @positive-click="UI.fileInterface.closeFileSaveModal()"
+      :show-icon="false"
     >
       <n-input
         v-model:value="UI.fileInterface.serializedDocument.value"
@@ -118,47 +120,60 @@
   </teleport>
   <teleport to="#modal">
     <!-- Document Preferences Modal -->
-    <a-modal
+    <n-modal
       v-if="docManager.currentDocument.value"
-      v-model:visible="UI.fileInterface.documentPrefsModal.value"
+      v-model:show="UI.fileInterface.documentPrefsModal.value"
       title="Document Preferences"
-      ok-text="Done"
-      @ok="UI.fileInterface.closeDocPrefsModal()"
+      preset="dialog"
+      positive-text="Done"
+      @positive-click="UI.fileInterface.closeDocPrefsModal()"
     >
-      <a-form :label-col="{ span: 5 }" :wrapper-col="{ span: 12 }">
-        <a-form-item label="Paper Style:">
+      <n-form
+        label-placement="left"
+        :label-width="100"
+        :style="{
+          maxWidth: '640px',
+        }"
+      >
+        <n-form-item label="Paper Style:">
           <div>
             <!-- Paper Style: -->
-            <a-select
+            <n-select
               v-model:value="docManager.currentDocument.value.options.paperStyle"
-              @change="(value) => (docManager.currentDocument.value.options.paperStyle = value)"
+              @on-update:value="(value) => (docManager.currentDocument.value.options.paperStyle = value)"
+              :options="[
+                { label: 'Standard', value: 'standard' },
+                { label: 'Engineering', value: 'engineer' },
+                { label: 'Printer', value: 'printer' },
+              ]"
+              :style="{
+                width: '100%',
+              }"
             >
-              <a-select-option value="standard">Standard</a-select-option>
-              <a-select-option value="engineer">Engineering</a-select-option>
-              <a-select-option value="printer">Printer</a-select-option>
-            </a-select>
+            </n-select>
           </div>
-        </a-form-item>
-        <a-form-item label="Paper Size:">
+        </n-form-item>
+        <n-form-item label="Paper Size:">
           <div>
             <!-- Paper Size: -->
-            <a-select
+            <n-select
               v-model:value="docManager.currentDocument.value.options.paperSize"
-              @change="(value) => (docManager.currentDocument.value.options.paperSize = value)"
+              @on-update:value="(value) => (docManager.currentDocument.value.options.paperSize = value)"
+              :options="[
+                { label: 'A3', value: 'A3' },
+                { label: 'A4', value: 'A4' },
+                { label: 'A5', value: 'A5' },
+                { label: 'ANSI A', value: 'ANSI_A' },
+                { label: 'ANSI B', value: 'ANSI_B' },
+                { label: 'Arch A', value: 'ARCH_A' },
+                { label: 'Arch B', value: 'ARCH_B' },
+              ]"
             >
-              <a-select-option value="A3">A3</a-select-option>
-              <a-select-option value="A4">A4</a-select-option>
-              <a-select-option value="A5">A5</a-select-option>
-              <a-select-option value="ANSI_A">ANSI A (US Letter)</a-select-option>
-              <a-select-option value="ANSI_B">ANSI B</a-select-option>
-              <a-select-option value="ARCH_A">Arch A</a-select-option>
-              <a-select-option value="ARCH_B">Arch B</a-select-option>
-              <!-- <a-select-option value="Legal">Legal</a-select-option> -->
-            </a-select>
+            </n-select>
           </div>
-        </a-form-item>
-      </a-form>
-    </a-modal>
+        </n-form-item>
+      </n-form>
+    </n-modal>
   </teleport>
 </template>
 
@@ -170,7 +185,24 @@ import pkg from '../../package.json'
 import * as UI from './ui'
 import { useDocumentManager } from '../model/document/document-manager'
 
-import { NButton, NGrid, NGridItem, NGi, NSpace, NDropdown, NGradientText, NModal, NCard, NInput, NUpload, NUploadDragger, NIcon } from 'naive-ui'
+import {
+  NButton,
+  NGrid,
+  NGridItem,
+  NGi,
+  NSpace,
+  NDropdown,
+  NGradientText,
+  NModal,
+  NCard,
+  NInput,
+  NUpload,
+  NUploadDragger,
+  NIcon,
+  NForm,
+  NFormItem,
+  NSelect,
+} from 'naive-ui'
 
 // https://github.com/07akioni/xicons#installation
 import { UploadOutlined, InboxOutlined } from '@vicons/antd'
@@ -192,6 +224,9 @@ export default defineComponent({
     NIcon,
     UploadOutlined,
     InboxOutlined,
+    NForm,
+    NFormItem,
+    NSelect,
   },
   setup(props, context) {
     // const UI = useUI()
@@ -267,6 +302,7 @@ export default defineComponent({
   --bezier-ease-out: none !important;
 } */
 
+/* Custom Dropdown Animation */
 .popover-transition-enter-active {
   transition: opacity 0.15s var(--bezier-ease-out), transform 0.15s var(--bezier-ease-out) !important;
 }
@@ -278,11 +314,15 @@ export default defineComponent({
   transform: scale(1) !important;
   opacity: 1 !important;
 }
-
 .popover-transition-enter-from,
 .popover-transition-leave-to {
   transform: scale(1) !important;
   transform: translate(0px, -10px) !important;
   opacity: 0 !important;
+}
+
+/* Allow form items to fill full width */
+.n-form-item-blank {
+  display: unset !important;
 }
 </style>
