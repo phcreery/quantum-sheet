@@ -127,6 +127,7 @@
       preset="dialog"
       positive-text="Done"
       @positive-click="UI.fileInterface.closeDocPrefsModal()"
+      :show-icon="false"
     >
       <n-form
         label-placement="left"

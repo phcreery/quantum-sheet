@@ -4,19 +4,25 @@
       <a-col :span="4">
         <a-space :style="{ height: '36px' }">
           <div :style="{ width: '20px' }" />
-          <a-tooltip :mouseEnterDelay="1">
-            <template #title> (Re)Calculate </template>
-            <a-button
-              size="small"
-              :type="{ ready: 'primary', disconnected: 'dashed' }[UI.casStatus.casState.value]"
-              :danger="UI.casStatus.casState.value === 'error'"
-              @click="appActions.compute"
-            >
-              <!-- <CalculatorOutlined /> -->
-              <!-- <a-icon :type="UI.casStatus.icon.value" /> -->
-              <Icon :icon="UI.casStatus.casIcon.value" :id="UI.casStatus.casIcon.value" />
-            </a-button>
-          </a-tooltip>
+          <n-tooltip trigger="hover" placement="top-start" :delay="1000">
+            <template #trigger>
+              <n-button
+                size="small"
+                :type="{ ready: 'primary', disconnected: 'error', error: 'error' }[UI.casStatus.casState.value]"
+                :dashed="UI.casStatus.casState.value === 'disconnected'"
+                @click="appActions.compute"
+              >
+                <!-- <CalculatorOutlined /> -->
+                <!-- <a-icon :type="UI.casStatus.icon.value" /> -->
+                <!-- <Icon :icon="UI.casStatus.casIcon.value" :id="UI.casStatus.casIcon.value" /> -->
+                <n-icon>
+                  <CalculatorOutlined v-if="UI.casStatus.casState.value === 'ready'" />
+                  <ApiOutlined v-else-if="UI.casStatus.casState.value === 'disconnected'" />
+                </n-icon>
+              </n-button>
+            </template>
+            <span>(Re)Calculate </span>
+          </n-tooltip>
           <!-- Auto Calculate -->
           <!-- <a-tooltip>
             <template #title> Auto Calculate </template>
@@ -108,11 +114,13 @@
 
 <script lang="ts">
 import { defineComponent, ref, reactive, inject, watch } from 'vue'
-import { ExportOutlined, CalculatorOutlined, AppstoreOutlined } from '@ant-design/icons-vue'
 import * as UI from './ui'
 import * as Notification from './notification'
-import { Icon } from './icon'
 import { cas } from './../model/cas'
+
+import { NButton, NIcon, NSelect, NTooltip } from 'naive-ui'
+import { Button, Layout, LayoutContent, Grid, Row, Col, Space } from 'ant-design-vue'
+import { ExportOutlined, CalculatorOutlined, AppstoreOutlined, ApiOutlined } from '@vicons/antd'
 
 function useDocActions() {
   function handleChangeNumberFormat() {
@@ -155,7 +163,14 @@ export default defineComponent({
     ExportOutlined,
     CalculatorOutlined,
     AppstoreOutlined,
-    Icon,
+    ApiOutlined,
+    NIcon,
+    NButton,
+    NTooltip,
+    'a-row': Row,
+    'a-col': Col,
+    'a-grid': Grid,
+    'a-space': Space,
   },
   props: {},
   setup(props, context) {
