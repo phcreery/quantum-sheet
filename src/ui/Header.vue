@@ -221,7 +221,31 @@ export default defineComponent({
 
 <style>
 /* Symmetric Menu Transition */
-/* .v-binder-follower-content {
+.v-binder-follower-content {
   transform-origin: top !important;
+}
+/* Disable Transition */
+/* .n-dropdown-menu {
+  --bezier-ease-in: none !important;
+  --bezier-ease-out: none !important;
 } */
+
+.popover-transition-enter-active {
+  transition: opacity 0.15s var(--bezier-ease-out), transform 0.15s var(--bezier-ease-out) !important;
+}
+.popover-transition-leave-active {
+  transition: opacity 0.15s var(--bezier-ease-in), transform 0.15s var(--bezier-ease-in) !important;
+}
+.popover-transition-enter-to,
+.popover-transition-leave-from {
+  transform: scale(1) !important;
+  opacity: 1 !important;
+}
+
+.popover-transition-enter-from,
+.popover-transition-leave-to {
+  transform: scale(1) !important;
+  transform: translate(0px, -10px) !important;
+  opacity: 0 !important;
+}
 </style>
