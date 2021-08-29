@@ -69,6 +69,7 @@
       <n-input
         v-model:value="UI.fileInterface.serializedDocument.value"
         type="textarea"
+        placeholder=""
         :autosize="{
           minRows: 8,
           maxRows: 20,
@@ -91,19 +92,29 @@
   </teleport>
   <teleport to="#modal">
     <!-- SAVE modal -->
-    <a-modal v-model:visible="UI.fileInterface.fileSaveModal.value" title="Save File" ok-text="Done" @ok="UI.fileInterface.closeFileSaveModal()">
-      <a-textarea
+    <n-modal
+      v-model:show="UI.fileInterface.fileSaveModal.value"
+      title="Save File"
+      preset="dialog"
+      positive-text="Done"
+      @positive-click="UI.fileInterface.closeFileSaveModal()"
+    >
+      <n-input
         v-model:value="UI.fileInterface.serializedDocument.value"
-        :auto-size="{ minRows: 8, maxRows: 20 }"
+        type="textarea"
+        :autosize="{
+          minRows: 8,
+          maxRows: 20,
+        }"
         :style="{ marginBottom: '20px' }"
       />
-      <a-button type="primary" size="large" block @click="download()">
+      <n-button type="primary" size="large" block @click="download()">
         <template #icon>
           <DownloadOutlined />
         </template>
         Download
-      </a-button>
-    </a-modal>
+      </n-button>
+    </n-modal>
   </teleport>
   <teleport to="#modal">
     <!-- Document Preferences Modal -->
@@ -166,8 +177,6 @@ import { UploadOutlined, InboxOutlined } from '@vicons/antd'
 
 export default defineComponent({
   components: {
-    InboxOutlined,
-    DownloadOutlined,
     NGrid,
     NGridItem,
     NGi,
