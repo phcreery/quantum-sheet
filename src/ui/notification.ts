@@ -1,4 +1,7 @@
-import { notification } from 'ant-design-vue'
+import { ref, Ref, computed } from 'vue'
+// import { notification } from 'ant-design-vue'
+import { useNotification } from 'naive-ui'
+const notification = useNotification()
 
 function objToString(value: any) {
   if (typeof value === 'string') {
@@ -12,38 +15,39 @@ function objToString(value: any) {
   }
 }
 
-function notify(type: 'success' | 'error' | 'warning', message: string, details: any) {
-  let description = objToString(details)
+function notify(type: 'success' | 'error' | 'warning' | 'info', content: string, details: any) {
+  let meta = objToString(details)
   const config = {
-    message,
-    description,
+    content,
+    meta,
   }
+  console.log('n', notification, useNotification(), config, type)
   notification[type](config)
 }
 
-function log(message: string, details: any) {
-  let description = objToString(details)
+function log(content: string, details: any) {
+  let meta = objToString(details)
   const config = {
-    message,
-    description,
+    content,
+    meta,
   }
   notification.info(config)
 }
 
-function warn(message: string, details: any) {
-  let description = objToString(details)
+function warn(content: string, details: any) {
+  let meta = objToString(details)
   const config = {
-    message,
-    description,
+    content,
+    meta,
   }
-  notification.warn(config)
+  notification.warning(config)
 }
 
-function error(message: string, details: any) {
-  let description = objToString(details)
+function error(content: string, details: any) {
+  let meta = objToString(details)
   const config = {
-    message,
-    description,
+    content,
+    meta,
   }
   notification.error(config)
 }

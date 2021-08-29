@@ -1,15 +1,17 @@
 <template>
-  <a-layout>
-    <Header />
-    <div class="content">
-      <a-layout-content class="drawingtable center print-area">
-        <!-- TODO: Add an "id" property (with a uuid) so that we can recreate the document whenever we want a new document -->
-        <quantum-document @quantum-document="(v) => docManager.registerQuantumDocument(v)"></quantum-document>
-        <!-- <LandingPage /> -->
-      </a-layout-content>
-    </div>
-    <Footer />
-  </a-layout>
+  <n-notification-provider>
+    <a-layout>
+      <Header />
+      <div class="content">
+        <a-layout-content class="drawingtable center print-area">
+          <!-- TODO: Add an "id" property (with a uuid) so that we can recreate the document whenever we want a new document -->
+          <quantum-document @quantum-document="(v) => docManager.registerQuantumDocument(v)"></quantum-document>
+          <!-- <LandingPage /> -->
+        </a-layout-content>
+      </div>
+      <Footer />
+    </a-layout>
+  </n-notification-provider>
 </template>
 
 <script lang="ts">
@@ -24,7 +26,7 @@ import { UseQuantumDocument } from './model/document/document'
 import { useUrlSearchParams } from '@vueuse/core'
 import * as Notification from './ui/notification'
 
-import { NLayout, NLayoutContent } from 'naive-ui'
+import { NLayout, NLayoutContent, NNotificationProvider } from 'naive-ui'
 import { Button, Layout, LayoutContent } from 'ant-design-vue'
 
 window.addEventListener('error', (ev) => {
@@ -44,6 +46,7 @@ export default defineComponent({
     Footer,
     NLayout,
     NLayoutContent,
+    NNotificationProvider,
     'a-layout': Layout,
     'a-layout-content': LayoutContent,
   },
