@@ -3,7 +3,7 @@
     <n-grid :x-gap="12" :cols="2" :style="{ height: '36px' }">
       <n-gi>
         <n-space :style="{ marginTop: '0px', paddingTop: '0px', height: '36px' }" :size="0">
-          <div :style="{ width: '16px' }" />
+          <div :style="{ width: '16px', height: '30px' }" />
           <!-- <h3 @click="() => {}" :style="{ cursor: 'pointer', margin: 0, width: '110px', height: '36px' }">QuantumSheet</h3> -->
           <n-gradient-text type="info" :size="22" :style="{ cursor: 'pointer' }"> QuantumSheet </n-gradient-text>
           <div :style="{ width: '16px' }" />
@@ -58,19 +58,36 @@
 
   <teleport to="#modal">
     <!-- OPEN modal -->
-    <a-modal v-model:visible="UI.fileInterface.fileOpenModal.value" title="Open File" ok-text="Open" @ok="UI.fileInterface.confirmFileOpenModal()">
-      <a-textarea
+    <n-modal
+      v-model:show="UI.fileInterface.fileOpenModal.value"
+      title="Open File"
+      preset="dialog"
+      content="Are you sure?"
+      positive-text="Open"
+      @positive-click="UI.fileInterface.confirmFileOpenModal()"
+    >
+      <n-input
         v-model:value="UI.fileInterface.serializedDocument.value"
-        :auto-size="{ minRows: 8, maxRows: 20 }"
+        type="textarea"
+        :autosize="{
+          minRows: 8,
+          maxRows: 20,
+        }"
         :style="{ marginBottom: '20px' }"
       />
-      <a-upload-dragger name="file" :multiple="false" :before-upload="beforeUpload">
-        <p class="ant-upload-drag-icon">
-          <InboxOutlined />
-        </p>
-        <p class="ant-upload-text">Click or drag file to this area to upload</p>
-      </a-upload-dragger>
-    </a-modal>
+      <n-upload :on-before-upload="beforeUpload">
+        <n-upload-dragger>
+          <div style="margin-bottom: 12px">
+            <n-icon size="48" :depth="3">
+              <InboxOutlined />
+            </n-icon>
+          </div>
+          <n-text style="font-size: 16px">Click or drag file to this area to upload</n-text>
+          <br />
+          <n-p depth="3" style="margin: 8px 0 0 0">Strictly prohibit from uploading sensitive information.</n-p>
+        </n-upload-dragger>
+      </n-upload>
+    </n-modal>
   </teleport>
   <teleport to="#modal">
     <!-- SAVE modal -->
@@ -136,13 +153,16 @@
 
 <script lang="ts">
 import { defineComponent, ref, inject, reactive } from 'vue'
-import { InboxOutlined, DownloadOutlined } from '@ant-design/icons-vue'
+// import { InboxOutlined, DownloadOutlined } from '@ant-design/icons-vue'
 import pkg from '../../package.json'
 
 import * as UI from './ui'
 import { useDocumentManager } from '../model/document/document-manager'
 
-import { NButton, NGrid, NGridItem, NGi, NSpace, NDropdown, NGradientText } from 'naive-ui'
+import { NButton, NGrid, NGridItem, NGi, NSpace, NDropdown, NGradientText, NModal, NCard, NInput, NUpload, NUploadDragger, NIcon } from 'naive-ui'
+
+// https://github.com/07akioni/xicons#installation
+import { UploadOutlined, InboxOutlined } from '@vicons/antd'
 
 export default defineComponent({
   components: {
@@ -155,6 +175,14 @@ export default defineComponent({
     NButton,
     NDropdown,
     NGradientText,
+    NModal,
+    NCard,
+    NInput,
+    NUpload,
+    NUploadDragger,
+    NIcon,
+    UploadOutlined,
+    InboxOutlined,
   },
   setup(props, context) {
     // const UI = useUI()
