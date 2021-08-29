@@ -1,13 +1,13 @@
 <template>
   <a-layout>
     <Header />
-    <a-layout class="content">
+    <div class="content">
       <a-layout-content class="drawingtable center print-area">
         <!-- TODO: Add an "id" property (with a uuid) so that we can recreate the document whenever we want a new document -->
         <quantum-document @quantum-document="(v) => docManager.registerQuantumDocument(v)"></quantum-document>
         <!-- <LandingPage /> -->
       </a-layout-content>
-    </a-layout>
+    </div>
     <Footer />
   </a-layout>
 </template>
@@ -24,6 +24,9 @@ import { UseQuantumDocument } from './model/document/document'
 import { useUrlSearchParams } from '@vueuse/core'
 import * as Notification from './ui/notification'
 
+import { NLayout, NLayoutContent } from 'naive-ui'
+import { Button, Layout, LayoutContent } from 'ant-design-vue'
+
 window.addEventListener('error', (ev) => {
   Notification.error('Unhandled error', ev.error)
 })
@@ -39,6 +42,10 @@ export default defineComponent({
     QuantumDocument,
     Header,
     Footer,
+    NLayout,
+    NLayoutContent,
+    'a-layout': Layout,
+    'a-layout-content': LayoutContent,
   },
   setup(props, context) {
     if (import.meta.env.PROD) {
@@ -68,6 +75,8 @@ export default defineComponent({
   /* Background color = Scrollbar color */
   background-color: #f1f1f1;
   display: flex;
+  flex: auto;
+  flex-direction: column;
   /* Header and footer */
   overflow-y: auto;
   height: calc(100vh - 36px - 36px);
@@ -75,6 +84,7 @@ export default defineComponent({
   padding-left: 12px;
   padding-right: 12px;
   overflow-x: auto;
+  width: 100%;
 }
 
 .drawingtable {
@@ -97,6 +107,9 @@ export default defineComponent({
 .center {
   margin-left: auto;
   margin-right: auto;
+}
+.n-layout {
+  overflow: revert !important;
 }
 </style>
 

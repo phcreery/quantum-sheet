@@ -18,10 +18,10 @@
             </a-button>
           </a-tooltip>
           <!-- Auto Calculate -->
-          <a-tooltip>
+          <!-- <a-tooltip>
             <template #title> Auto Calculate </template>
             <a-switch size="small" disabled default-checked />
-          </a-tooltip>
+          </a-tooltip> -->
         </a-space>
       </a-col>
 

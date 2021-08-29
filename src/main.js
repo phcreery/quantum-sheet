@@ -8,7 +8,7 @@ import 'ant-design-vue/dist/antd.css'
 
 const app = createApp(App)
 
-app.use(Antd)
+// app.use(Antd)
 app.mount('#app')
 
 cas.doneLoading.then(() => {}) // Load the CAS as early as possible
