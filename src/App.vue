@@ -2,10 +2,21 @@
   <a-layout>
     <Header />
     <a-layout class="content">
-      <a-layout-content class="drawingtable center print-area">
-        <!-- TODO: Add an "id" property (with a uuid) so that we can recreate the document whenever we want a new document -->
-        <quantum-document @quantum-document="(v) => docManager.registerQuantumDocument(v)"></quantum-document>
-        <!-- <LandingPage /> -->
+      <a-layout-content class="center document-container">
+        <a-tabs v-model:activeKey="activeKey" type="editable-card" @edit="onEdit">
+          <a-tab-pane :key="1" tab="Doc" closable="true">
+            <a-layout-content class="drawingtable center print-area">
+              <!-- TODO: Add an "id" property (with a uuid) so that we can recreate the document whenever we want a new document -->
+              <quantum-document @quantum-document="(v) => docManager.registerQuantumDocument(v)"></quantum-document>
+              <!-- <LandingPage /> -->
+            </a-layout-content>
+          </a-tab-pane>
+          <a-tab-pane :key="2" tab="Doc2" closable="true">
+            <a-layout-content class="drawingtable center print-area">
+              <quantum-document @quantum-document="(v) => docManager.registerQuantumDocument(v)"></quantum-document>
+            </a-layout-content>
+          </a-tab-pane>
+        </a-tabs>
       </a-layout-content>
     </a-layout>
     <Footer />
@@ -14,7 +25,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, provide, nextTick, onMounted, Ref } from 'vue'
-import { Button, Layout, LayoutContent, Grid, Row, Col, Space } from 'ant-design-vue'
+import { Button, Layout, LayoutContent, Grid, Row, Col, Space, Tabs, TabPane } from 'ant-design-vue'
 import pkg from './../package.json'
 import QuantumDocument from './ui/QuantumDocument.vue'
 import Header from './ui/Header.vue'
@@ -41,7 +52,9 @@ export default defineComponent({
     Header,
     Footer,
     'a-layout': Layout,
-    'a-layout-content': LayoutContent
+    'a-layout-content': LayoutContent,
+    'a-tabs': Tabs,
+    'a-tab-pane': TabPane,
   },
   setup(props, context) {
     if (import.meta.env.PROD) {
@@ -79,13 +92,18 @@ export default defineComponent({
   padding-right: 12px;
   overflow-x: auto;
 }
+.document-container {
+  min-height: auto;
+  margin-top: 24px;
+  margin-bottom: 24px !important;
+}
 
 .drawingtable {
   min-height: min-content;
   min-width: min-content;
   box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
-  margin-top: 24px;
-  margin-bottom: 24px;
+  /* margin-top: 24px;
+  margin-bottom: 24px; */
   /*
   TODO: For zooming
   1. The background ends up having weird aliasing effects
@@ -124,5 +142,36 @@ export default defineComponent({
     visibility: hidden;
     display: none;
   }
+}
+
+.ant-tabs-bar {
+  margin: 0 !important;
+  border: 0px !important;
+}
+.document-container > .ant-tabs-card {
+  overflow: unset;
+}
+.document-container > .ant-tabs-card > .ant-tabs-content {
+  /* height: 120px; */
+  /* margin-top: -16px; */
+}
+
+.document-container > .ant-tabs-card > .ant-tabs-content > .ant-tabs-tabpane {
+  background: #fff;
+  /* padding: 16px; */
+}
+
+.document-container > .ant-tabs-card > .ant-tabs-bar {
+  border-color: #fff;
+}
+
+.document-container > .ant-tabs-card > .ant-tabs-bar .ant-tabs-tab {
+  border-color: transparent !important;
+  background: transparent !important;
+}
+
+.document-container > .ant-tabs-card > .ant-tabs-bar .ant-tabs-tab-active {
+  border-color: #fff !important;
+  background: #fff !important;
 }
 </style>
