@@ -4,16 +4,12 @@
     <a-layout class="content">
       <a-layout-content class="center document-container">
         <a-tabs v-model:activeKey="activeKey" type="editable-card" @edit="onEdit">
-          <a-tab-pane :key="1" tab="Doc" closable="true">
+          <a-tab-pane v-for="(ID, index) in docManager.IDs.value" :key="ID" :tab="ID.substring(0, 8)" :closable="true">
+            {{ ID }}
             <a-layout-content class="drawingtable center print-area">
               <!-- TODO: Add an "id" property (with a uuid) so that we can recreate the document whenever we want a new document -->
-              <quantum-document @quantum-document="(v) => docManager.registerQuantumDocument(v)"></quantum-document>
+              <quantum-document @quantum-document="(v) => docManager.registerQuantumDocument(v, ID)"></quantum-document>
               <!-- <LandingPage /> -->
-            </a-layout-content>
-          </a-tab-pane>
-          <a-tab-pane :key="2" tab="Doc2" closable="true">
-            <a-layout-content class="drawingtable center print-area">
-              <quantum-document @quantum-document="(v) => docManager.registerQuantumDocument(v)"></quantum-document>
             </a-layout-content>
           </a-tab-pane>
         </a-tabs>
@@ -63,16 +59,19 @@ export default defineComponent({
     const urlParams = useUrlSearchParams('history')
     const docManager = useDocumentManager()
 
+    docManager.openDocument()
+    docManager.openDocument()
+
     // Allow loading a document from a URL
     const documentUrl = urlParams['document-url']
-    if (documentUrl && typeof documentUrl === 'string') {
-      // TODO: Warning/popup if a document is already loaded
-      fetch(documentUrl)
-        .then((v) => v.text())
-        .then((v) => {
-          docManager.loadDocument(v)
-        })
-    }
+    // if (documentUrl && typeof documentUrl === 'string') {
+    //   // TODO: Warning/popup if a document is already loaded
+    //   fetch(documentUrl)
+    //     .then((v) => v.text())
+    //     .then((v) => {
+    //       docManager.loadDocument(v)
+    //     })
+    // }
 
     return { docManager }
   },
@@ -102,8 +101,7 @@ export default defineComponent({
   min-height: min-content;
   min-width: min-content;
   box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
-  /* margin-top: 24px;
-  margin-bottom: 24px; */
+
   /*
   TODO: For zooming
   1. The background ends up having weird aliasing effects
@@ -146,30 +144,21 @@ export default defineComponent({
 
 .ant-tabs-bar {
   margin: 0 !important;
-  border: 0px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0) !important;
 }
 .document-container > .ant-tabs-card {
   overflow: unset;
 }
-.document-container > .ant-tabs-card > .ant-tabs-content {
-  /* height: 120px; */
-  /* margin-top: -16px; */
-}
-
 .document-container > .ant-tabs-card > .ant-tabs-content > .ant-tabs-tabpane {
   background: #fff;
-  /* padding: 16px; */
 }
-
 .document-container > .ant-tabs-card > .ant-tabs-bar {
   border-color: #fff;
 }
-
 .document-container > .ant-tabs-card > .ant-tabs-bar .ant-tabs-tab {
   border-color: transparent !important;
   background: transparent !important;
 }
-
 .document-container > .ant-tabs-card > .ant-tabs-bar .ant-tabs-tab-active {
   border-color: #fff !important;
   background: #fff !important;
