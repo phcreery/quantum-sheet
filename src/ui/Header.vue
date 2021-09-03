@@ -26,16 +26,41 @@
             </template>
           </a-dropdown>
           <a-dropdown placement="bottomLeft" :trigger="['click']">
-            <a-button ghost style="height: 36px; color: black">Σ</a-button>
+            <a-button
+              ghost
+              style="height: 36px; color: black"
+              v-on:mousedown="
+                (ev) => {
+                  ev.preventDefault()
+                  ev.stopPropagation()
+                }
+              "
+              >Σ</a-button
+            >
             <template #overlay>
               <a-menu>
-                <a-sub-menu key="Algebra" title="Algebra">
-                  <a-menu-item v-for="(op, index) in insertables.operators.Algebra" :key="index" :disabled="!op.enabled"
-                    >{{ op.name }} ({{ op.tip }})
-                  </a-menu-item>
-                </a-sub-menu>
-                <a-sub-menu key="Calculus" title="Calculus">
-                  <a-menu-item v-for="(op, index) in insertables.operators.Calculus" :key="index" :disabled="!op.enabled"
+                <a-sub-menu
+                  v-for="(section, index) in Object.keys(insertables.operators)"
+                  :key="index"
+                  :title="section"
+                  v-on:mousedown="
+                    (ev) => {
+                      ev.preventDefault()
+                      ev.stopPropagation()
+                    }
+                  "
+                >
+                  <a-menu-item
+                    v-for="(op, index) in insertables.operators[section]"
+                    :key="index"
+                    :disabled="!op.enabled"
+                    v-on:mousedown="
+                      (ev) => {
+                        op.action(docManager.currentDocument.value.focusedElementCommands.commands.value)
+                        ev.preventDefault()
+                        ev.stopPropagation()
+                      }
+                    "
                     >{{ op.name }} ({{ op.tip }})
                   </a-menu-item>
                 </a-sub-menu>
@@ -134,6 +159,8 @@
 
 <script lang="ts">
 import { defineComponent, ref, inject, reactive } from 'vue'
+
+import { useFocusedElementCommands, ElementCommands } from '../model/document/elements/element-commands'
 import {
   Button,
   Grid,
@@ -183,23 +210,78 @@ export default defineComponent({
     // const UI = useUI()
     const docManager = useDocumentManager()
 
+    // TODO: place somewhere where within reach of documentation?
     const insertables = {
       operators: {
         Algebra: [
-          { name: '+', tip: 'Addition', enabled: true, action: () => '+' },
-          { name: '-', tip: 'Subtraction', enabled: true, action: () => '-' },
-          { name: '*', tip: 'Multiplication', enabled: true, action: () => '*' },
-          { name: '÷', tip: 'Division', enabled: true, action: () => '÷' },
-          { name: '⁄', tip: 'Fraction', enabled: true, action: () => '/' },
-          { name: 'x²', tip: 'Square', enabled: true, action: () => '^2' },
-          { name: 'xⁿ', tip: 'Exponent', enabled: true, action: () => '^' },
-          { name: '√', tip: 'Root', enabled: false, action: () => '√' },
-          { name: '%', tip: 'Percent', enabled: false, action: () => '%' },
-          { name: '!', tip: 'Factorial', enabled: true, action: () => '!' },
+          {
+            name: '+',
+            tip: 'Addition',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('+'),
+          },
+          {
+            name: '-',
+            tip: 'Subtraction',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('-'),
+          },
+          {
+            name: '*',
+            tip: 'Multiplication',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('*'),
+          },
+          {
+            name: '÷',
+            tip: 'Division',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('\\div'),
+          },
+          {
+            name: '⁄',
+            tip: 'Fraction',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('\\frac'),
+          },
+          {
+            name: 'x²',
+            tip: 'Square',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('^2'),
+          },
+          {
+            name: 'xⁿ',
+            tip: 'Exponent',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('^'),
+          },
+          {
+            name: '√',
+            tip: 'Root',
+            enabled: false,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('\\sqrt'),
+          },
+          {
+            name: '%',
+            tip: 'Percent',
+            enabled: false,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('%'),
+          },
+          {
+            name: '!',
+            tip: 'Factorial',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('!'),
+          },
         ],
         Calculus: [
           { name: 'd/dx', tip: 'Derivative', enabled: false, action: () => '' },
           { name: '∫dx', tip: 'Integral', enabled: false, action: () => '' },
+        ],
+        Evaluation: [
+          { name: '=', tip: 'Evaluate', enabled: true, action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('=') },
+          { name: '→', tip: 'Solve', enabled: false, action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('.') },
         ],
       },
     }

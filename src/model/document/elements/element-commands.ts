@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { ref, Ref } from 'vue'
 
 /**
  * Every element (or cell) should support a few features for QuantumSheet to work nicely.
@@ -10,11 +10,14 @@ export interface ElementCommands {
   moveToEnd?: () => void
   insert?: (text: string) => void
 }
+export interface FocusedElementCommands {
+  commands: Ref<ElementCommands> | undefined
+}
 
 export function useFocusedElementCommands() {
   const commands = ref<ElementCommands>()
 
   return {
-    commands
+    commands,
   }
 }

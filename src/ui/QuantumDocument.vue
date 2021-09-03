@@ -60,7 +60,7 @@
         :is="getTypeComponent(element.typeName)"
         class="quantum-element"
         :modelGetter="() => element"
-        @focused-element-commands="(value) => (focusedElementCommands.commands.value = value)"
+        @focused-element-commands="(value) => (document.focusedElementCommands.commands.value = value)"
         @move-cursor-out="(value) => grid.moveCrosshairOut(element, value)"
         @delete-element="document.deleteElement(element)"
       ></component>
@@ -74,7 +74,7 @@ import { useDocument, UseQuantumDocument, QuantumDocumentElementTypes } from '..
 import ExpressionElement, { ExpressionElementType } from './elements/ExpressionElement.vue'
 import ScopeElement, { ScopeElementType } from './elements/ScopeStartElement.vue'
 import LatexElement, { LatexElementType } from './elements/LatexElement.vue'
-import { useFocusedElementCommands, ElementCommands } from './elements/element-commands'
+import { ElementCommands } from '../model/document/elements/element-commands'
 import { Vector2 } from '../model/vectors'
 import { QuantumElement, JsonType } from '../model/document/document-element'
 import { watchImmediate } from '../model/reactivity-utils'
@@ -322,7 +322,6 @@ function useElementDrag<T extends QuantumDocumentElementTypes>(quantumDocument: 
 
 function useEvents<T extends QuantumDocumentElementTypes>(
   quantumDocument: UseQuantumDocument<T>,
-  focusedElementCommands: Ref<ElementCommands | undefined>,
   grid: ReturnType<typeof useGrid>,
   pages: ReturnType<typeof usePages>
 ) {
@@ -343,8 +342,8 @@ function useEvents<T extends QuantumDocumentElementTypes>(
     })
     quantumDocument.setFocus(element)
     nextTick(() => {
-      focusedElementCommands.value?.moveToStart?.()
-      focusedElementCommands.value?.insert?.(ev.data + '')
+      quantumDocument.focusedElementCommands.commands.value?.moveToStart?.()
+      quantumDocument.focusedElementCommands.commands.value?.insert?.(ev.data + '')
     })
   }
 
@@ -526,13 +525,12 @@ export default defineComponent({
     const documentInputElement = ref<HTMLElement>()
 
     // const UI = useUI()
-    const focusedElementCommands = useFocusedElementCommands()
     const pages = usePages(document)
     const grid = useGrid(document, documentInputElement, pages)
     const clipboard = useClipboard(document)
     const selection = useElementSelection(document)
     const elementDrag = useElementDrag(document, pages)
-    const events = useEvents(document, focusedElementCommands.commands, grid, pages)
+    const events = useEvents(document, grid, pages)
 
     function log(ev: any) {
       console.log(ev)
@@ -548,8 +546,6 @@ export default defineComponent({
       document,
       documentElement,
       documentInputElement,
-
-      focusedElementCommands,
       grid,
       pages,
       clipboard,
