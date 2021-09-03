@@ -64,7 +64,7 @@
                     >{{ op.name }} ({{ op.tip }})
                   </a-menu-item>
                 </a-sub-menu>
-                <a-menu-item @click="() => true"> More Expressions... </a-menu-item>
+                <a-menu-item @click="() => true" disabled> More Expressions... </a-menu-item>
               </a-menu>
             </template>
           </a-dropdown>
@@ -227,10 +227,10 @@ export default defineComponent({
             action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('-'),
           },
           {
-            name: '*',
+            name: '⋅',
             tip: 'Multiplication',
             enabled: true,
-            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('*'),
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('\\cdot'),
           },
           {
             name: '÷',
@@ -273,6 +273,114 @@ export default defineComponent({
             tip: 'Factorial',
             enabled: true,
             action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('!'),
+          },
+        ],
+        Trigonometry: [
+          { name: 'sin', tip: 'Sine', enabled: true, action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('sin(') },
+          {
+            name: 'cos',
+            tip: 'Cosine',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('cos('),
+          },
+          {
+            name: 'tan',
+            tip: 'Tangent',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('tan('),
+          },
+          {
+            name: 'sec',
+            tip: 'Secant',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('sec('),
+          },
+          {
+            name: 'csc',
+            tip: 'Cosecant',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('csc('),
+          },
+          {
+            name: 'cot',
+            tip: 'Cotangent',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('cot('),
+          },
+          {
+            name: 'asin',
+            tip: 'Arcsine',
+            description: 'Inverse Sine function',
+            enabled: false,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('asin('),
+          },
+          {
+            name: 'acos',
+            tip: 'Arccosine',
+            description: 'Inverse Cosine function',
+            enabled: false,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('acos('),
+          },
+          {
+            name: 'atan',
+            tip: 'Arctangent',
+            description: 'Inverse Tangent function',
+            enabled: false,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('atan('),
+          },
+          {
+            name: 'asec',
+            tip: 'Arcsecant',
+            enabled: false,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('asec('),
+          },
+          {
+            name: 'acsc',
+            tip: 'Arccosecant',
+            enabled: false,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('acsc('),
+          },
+          {
+            name: 'acot',
+            tip: 'Arccotangent',
+            enabled: false,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('acot('),
+          },
+          {
+            name: 'sinh',
+            tip: 'Hyperbolic Sine',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('sinh('),
+          },
+          {
+            name: 'cosh',
+            tip: 'Hyperbolic Cosine',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('cosh('),
+          },
+          {
+            name: 'tanh',
+            tip: 'Hyperbolic Tangent',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('tanh('),
+          },
+          {
+            name: 'sech',
+            tip: 'Hyperbolic Secant',
+            enabled: false,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('sech('),
+          },
+          {
+            name: 'csch',
+            tip: 'Hyperbolic Cosecant',
+            enabled: false,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('csch('),
+          },
+          {
+            name: 'coth',
+            tip: 'Hyperbolic Cotangent',
+            enabled: false,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('coth('),
           },
         ],
         Calculus: [
