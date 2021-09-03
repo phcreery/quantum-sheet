@@ -10,18 +10,10 @@
             <a-button ghost style="height: 36px; color: black">File</a-button>
             <template #overlay>
               <a-menu>
-                <a-menu-item @click="UI.fileInterface.promptNewFile()">
-                  <a :style="{ color: 'black' }">New</a>
-                </a-menu-item>
-                <a-menu-item @click="UI.fileInterface.openFileOpenModal()">
-                  <a :style="{ color: 'black' }">Open...</a>
-                </a-menu-item>
-                <a-menu-item @click="UI.fileInterface.openFileSaveModal()">
-                  <a :style="{ color: 'black' }">Save as...</a>
-                </a-menu-item>
-                <!-- <a-menu-item @click="UI.promptCloseFile()">
-                  <a :style="{ color: 'black' }">Close</a>
-                </a-menu-item> -->
+                <a-menu-item @click="UI.fileInterface.promptNewFile()"> New </a-menu-item>
+                <a-menu-item @click="UI.fileInterface.openFileOpenModal()">Open... </a-menu-item>
+                <a-menu-item @click="UI.fileInterface.openFileSaveModal()">Save as... </a-menu-item>
+                <!-- <a-menu-item @click="UI.promptCloseFile()">Close</a-menu-item> -->
               </a-menu>
             </template>
           </a-dropdown>
@@ -29,9 +21,25 @@
             <a-button ghost style="height: 36px; color: black">Edit</a-button>
             <template #overlay>
               <a-menu>
-                <a-menu-item @click="() => (UI.fileInterface.documentPrefsModal.value = true)">
-                  <a :style="{ color: 'black' }">Document Preferences</a>
-                </a-menu-item>
+                <a-menu-item @click="() => (UI.fileInterface.documentPrefsModal.value = true)"> Document Preferences </a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown>
+          <a-dropdown placement="bottomLeft" :trigger="['click']">
+            <a-button ghost style="height: 36px; color: black">Σ</a-button>
+            <template #overlay>
+              <a-menu>
+                <a-sub-menu key="Algebra" title="Algebra">
+                  <a-menu-item v-for="(op, index) in insertables.operators.Algebra" :key="index" :disabled="!op.enabled"
+                    >{{ op.name }} ({{ op.tip }})
+                  </a-menu-item>
+                </a-sub-menu>
+                <a-sub-menu key="Calculus" title="Calculus">
+                  <a-menu-item v-for="(op, index) in insertables.operators.Calculus" :key="index" :disabled="!op.enabled"
+                    >{{ op.name }} ({{ op.tip }})
+                  </a-menu-item>
+                </a-sub-menu>
+                <a-menu-item @click="() => true"> More Expressions... </a-menu-item>
               </a-menu>
             </template>
           </a-dropdown>
@@ -142,6 +150,7 @@ import {
   MenuItem,
   UploadDragger,
   Textarea,
+  SubMenu,
 } from 'ant-design-vue'
 import { InboxOutlined, DownloadOutlined } from '@ant-design/icons-vue'
 import pkg from '../../package.json'
@@ -166,12 +175,34 @@ export default defineComponent({
     'a-modal': Modal,
     'a-menu': Menu,
     'a-menu-item': MenuItem,
+    'a-sub-menu': SubMenu,
     'a-upload-dragger': UploadDragger,
     'a-textarea': Textarea,
   },
   setup(props, context) {
     // const UI = useUI()
     const docManager = useDocumentManager()
+
+    const insertables = {
+      operators: {
+        Algebra: [
+          { name: '+', tip: 'Addition', enabled: true, action: () => '+' },
+          { name: '-', tip: 'Subtraction', enabled: true, action: () => '-' },
+          { name: '*', tip: 'Multiplication', enabled: true, action: () => '*' },
+          { name: '÷', tip: 'Division', enabled: true, action: () => '÷' },
+          { name: '⁄', tip: 'Fraction', enabled: true, action: () => '/' },
+          { name: 'x²', tip: 'Square', enabled: true, action: () => '^2' },
+          { name: 'xⁿ', tip: 'Exponent', enabled: true, action: () => '^' },
+          { name: '√', tip: 'Root', enabled: false, action: () => '√' },
+          { name: '%', tip: 'Percent', enabled: false, action: () => '%' },
+          { name: '!', tip: 'Factorial', enabled: true, action: () => '!' },
+        ],
+        Calculus: [
+          { name: 'd/dx', tip: 'Derivative', enabled: false, action: () => '' },
+          { name: '∫dx', tip: 'Integral', enabled: false, action: () => '' },
+        ],
+      },
+    }
 
     function download(filename: string, text: string) {
       // defaults
@@ -208,6 +239,7 @@ export default defineComponent({
       download,
       beforeUpload,
       pkg,
+      insertables,
     }
   },
 })
