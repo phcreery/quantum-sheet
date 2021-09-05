@@ -36,7 +36,6 @@
       @focus="
         grid.showCrosshair.value = true;
       "
-      @blur="grid.showCrosshair.value = false;"
     ></textarea>
 
     <div class="grid-crosshair" :style="grid.gridToStyle(grid.crosshairPosition.value)" v-show="grid.showCrosshair.value">+</div>
@@ -69,7 +68,7 @@
   <!-- <a-button @click="pages.addPage()">+ Page</a-button> -->
 </template>
 <script lang="ts">
-import { defineComponent, readonly, ref, Ref, nextTick, unref, watch, watchEffect } from 'vue'
+import { defineComponent, readonly, ref, Ref, nextTick, unref, watch, watchEffect, computed } from 'vue'
 import { useDocument, UseQuantumDocument, QuantumDocumentElementTypes } from '../model/document/document'
 import ExpressionElement, { ExpressionElementType } from './elements/ExpressionElement.vue'
 import ScopeElement, { ScopeElementType } from './elements/ScopeStartElement.vue'
@@ -115,7 +114,11 @@ function useGrid<T extends QuantumDocumentElementTypes>(
   inputElement: Ref<HTMLElement | undefined>,
   pages: ReturnType<typeof usePages>
 ) {
-  const crosshairPosition = ref<Vector2>(new Vector2(2, 10))
+  // const crosshairPosition = ref<Vector2>(new Vector2(2, 10))
+  // const crosshairPosition = computed(() => {
+  //   document.crosshairPosition
+  // })
+  const crosshairPosition = document.crosshairPosition
   const showCrosshair = ref(true)
 
   function gridToStyle(gridPosition: Vector2 | Ref<Vector2>) {

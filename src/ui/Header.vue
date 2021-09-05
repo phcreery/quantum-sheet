@@ -25,6 +25,53 @@
               </a-menu>
             </template>
           </a-dropdown>
+          <a-dropdown placement="bottomLeft" :trigger="['click']" v-on:mousedown="(ev) => {}">
+            <a-button ghost style="height: 36px; color: black">Insert</a-button>
+            <template #overlay>
+              <a-menu>
+                <a-menu-item
+                  @click="
+                    () => {
+                      // TODO: put this somewhere accessible by all menu items && QuantumDocument.vue
+                      let document = docManager.currentDocument.value
+                      let element = document.createElement(ExpressionElementType.typeName, {
+                        position: document.crosshairPosition.value,
+                        resizable: false,
+                      })
+                      document.setFocus(element)
+                    }
+                  "
+                >
+                  Expression
+                </a-menu-item>
+                <a-menu-item
+                  @click="
+                    () => {
+                      let document = docManager.currentDocument.value
+                      let element = document.createElement(LatexElementType.typeName, {
+                        position: document.crosshairPosition.value,
+                        resizable: false,
+                      })
+                      document.setFocus(element)
+                    }
+                  "
+                >
+                  LaTeX
+                </a-menu-item>
+                <a-menu-item
+                  disabled
+                  @click="
+                    () => {
+                      let element = docManager.currentDocument.value.createElement(ExpressionElementType.typeName, {})
+                      docManager.currentDocument.value.setFocus(element)
+                    }
+                  "
+                >
+                  Scope
+                </a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown>
           <a-dropdown placement="bottomLeft" :trigger="['click']">
             <a-button
               ghost
@@ -159,7 +206,8 @@
 
 <script lang="ts">
 import { defineComponent, ref, inject, reactive } from 'vue'
-
+import ExpressionElement, { ExpressionElementType } from './elements/ExpressionElement.vue'
+import LatexElement, { LatexElementType } from './elements/LatexElement.vue'
 import { useFocusedElementCommands, ElementCommands } from '../model/document/elements/element-commands'
 import {
   Button,
@@ -430,6 +478,8 @@ export default defineComponent({
       beforeUpload,
       pkg,
       insertables,
+      ExpressionElementType,
+      LatexElementType,
     }
   },
 })

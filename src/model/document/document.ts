@@ -258,6 +258,7 @@ export function useDocument<TElements extends QuantumDocumentElementTypes<readon
     paperStyle: 'standard',
     paperSize: 'A4',
   })
+  const crosshairPosition = ref<Vector2>(new Vector2(2, 2))
 
   const elementRemoveCallbacks = new Map<string, () => void>()
   const elementList = useElementList()
@@ -380,6 +381,7 @@ export function useDocument<TElements extends QuantumDocumentElementTypes<readon
 
   return {
     options,
+    crosshairPosition,
     elementTypes: elementTypes,
     elements: elementList.elements,
     focusedElementCommands,
