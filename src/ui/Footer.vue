@@ -109,7 +109,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, reactive, inject, watch } from 'vue'
-import { Button, Grid, Row, Col, Space, Dropdown, Select, SelectOption, Modal, Tooltip } from 'ant-design-vue'
+import { Button, Grid, Row, Col, Space, Dropdown, Select, SelectOption, Modal, Tooltip, Switch } from 'ant-design-vue'
 import { ExportOutlined, CalculatorOutlined, AppstoreOutlined, ApiOutlined, LoadingOutlined, WarningOutlined } from '@ant-design/icons-vue'
 import * as UI from './ui'
 import * as Notification from './notification'
@@ -169,6 +169,7 @@ export default defineComponent({
     'a-button': Button,
     'a-modal': Modal,
     'a-tooltip': Tooltip,
+    'a-switch': Switch,
   },
   props: {},
   setup(props, context) {
