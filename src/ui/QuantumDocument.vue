@@ -36,7 +36,6 @@
       @focus="
         grid.showCrosshair.value = true;
       "
-      @blur="grid.showCrosshair.value = false;"
     ></textarea>
 
     <div class="grid-crosshair" :style="grid.gridToStyle(grid.crosshairPosition.value)" v-show="grid.showCrosshair.value">+</div>
@@ -60,7 +59,7 @@
         :is="getTypeComponent(element.typeName)"
         class="quantum-element"
         :modelGetter="() => element"
-        @focused-element-commands="(value) => (focusedElementCommands.commands.value = value)"
+        @focused-element-commands="(value) => (document.focusedElementCommands.commands.value = value)"
         @move-cursor-out="(value) => grid.moveCrosshairOut(element, value)"
         @delete-element="document.deleteElement(element)"
       ></component>
@@ -69,12 +68,12 @@
   <!-- <a-button @click="pages.addPage()">+ Page</a-button> -->
 </template>
 <script lang="ts">
-import { defineComponent, readonly, ref, Ref, nextTick, unref, watch, watchEffect } from 'vue'
+import { defineComponent, readonly, ref, Ref, nextTick, unref, watch, watchEffect, computed } from 'vue'
 import { useDocument, UseQuantumDocument, QuantumDocumentElementTypes } from '../model/document/document'
 import ExpressionElement, { ExpressionElementType } from './elements/ExpressionElement.vue'
 import ScopeElement, { ScopeElementType } from './elements/ScopeStartElement.vue'
 import LatexElement, { LatexElementType } from './elements/LatexElement.vue'
-import { useFocusedElementCommands, ElementCommands } from './elements/element-commands'
+import { ElementCommands } from '../model/document/elements/element-commands'
 import { Vector2 } from '../model/vectors'
 import { QuantumElement, JsonType } from '../model/document/document-element'
 import { watchImmediate } from '../model/reactivity-utils'
@@ -115,7 +114,11 @@ function useGrid<T extends QuantumDocumentElementTypes>(
   inputElement: Ref<HTMLElement | undefined>,
   pages: ReturnType<typeof usePages>
 ) {
-  const crosshairPosition = ref<Vector2>(new Vector2(2, 10))
+  // const crosshairPosition = ref<Vector2>(new Vector2(2, 10))
+  // const crosshairPosition = computed(() => {
+  //   document.crosshairPosition
+  // })
+  const crosshairPosition = document.crosshairPosition
   const showCrosshair = ref(true)
 
   function gridToStyle(gridPosition: Vector2 | Ref<Vector2>) {
@@ -322,7 +325,6 @@ function useElementDrag<T extends QuantumDocumentElementTypes>(quantumDocument: 
 
 function useEvents<T extends QuantumDocumentElementTypes>(
   quantumDocument: UseQuantumDocument<T>,
-  focusedElementCommands: Ref<ElementCommands | undefined>,
   grid: ReturnType<typeof useGrid>,
   pages: ReturnType<typeof usePages>
 ) {
@@ -343,8 +345,8 @@ function useEvents<T extends QuantumDocumentElementTypes>(
     })
     quantumDocument.setFocus(element)
     nextTick(() => {
-      focusedElementCommands.value?.moveToStart?.()
-      focusedElementCommands.value?.insert?.(ev.data + '')
+      quantumDocument.focusedElementCommands.commands.value?.moveToStart?.()
+      quantumDocument.focusedElementCommands.commands.value?.insert?.(ev.data + '')
     })
   }
 
@@ -526,13 +528,12 @@ export default defineComponent({
     const documentInputElement = ref<HTMLElement>()
 
     // const UI = useUI()
-    const focusedElementCommands = useFocusedElementCommands()
     const pages = usePages(document)
     const grid = useGrid(document, documentInputElement, pages)
     const clipboard = useClipboard(document)
     const selection = useElementSelection(document)
     const elementDrag = useElementDrag(document, pages)
-    const events = useEvents(document, focusedElementCommands.commands, grid, pages)
+    const events = useEvents(document, grid, pages)
 
     function log(ev: any) {
       console.log(ev)
@@ -548,8 +549,6 @@ export default defineComponent({
       document,
       documentElement,
       documentInputElement,
-
-      focusedElementCommands,
       grid,
       pages,
       clipboard,

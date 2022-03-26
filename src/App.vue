@@ -26,7 +26,7 @@ import { useUrlSearchParams } from '@vueuse/core'
 import * as Notification from './ui/notification'
 
 window.addEventListener('error', (ev) => {
-  Notification.error('Unhandled error', ev.error)
+  Notification.error('Unhandled error', ev.message)
 })
 window.addEventListener('unhandledrejection', (ev) => {
   console.error('Unhandled error (promise)', ev.reason)
@@ -41,7 +41,7 @@ export default defineComponent({
     Header,
     Footer,
     'a-layout': Layout,
-    'a-layout-content': LayoutContent
+    'a-layout-content': LayoutContent,
   },
   setup(props, context) {
     if (import.meta.env.PROD) {

@@ -4,7 +4,7 @@
       <a-col :span="4">
         <a-space :style="{ height: '36px' }">
           <div :style="{ width: '20px' }" />
-          <a-tooltip :mouseEnterDelay="0.7">
+          <a-tooltip :mouseEnterDelay="1" placement="topLeft">
             <template #title> (Re)Calculate </template>
             <a-button
               size="small"
@@ -21,7 +21,7 @@
           <!-- Auto Calculate -->
           <a-tooltip>
             <template #title> Auto Calculate </template>
-            <a-switch size="small" disabled default-checked />
+            <!-- <a-switch size="small" disabled default-checked /> -->
           </a-tooltip>
         </a-space>
       </a-col>

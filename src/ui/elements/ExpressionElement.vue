@@ -149,6 +149,9 @@ export default defineComponent({
             })
           },
           onBlur: (mathfield: MathLive.Mathfield) => {
+            // mathfield.focus?.()
+            // expressionElement.setFocused(true)
+            console.log('blur', mathfield)
             context.emit('focused-element-commands', undefined)
             expressionElement.setFocused(false)
 
@@ -157,6 +160,7 @@ export default defineComponent({
             } else {
               evaluateExpression()
             }
+            // return false
           },
           onMoveOutOf: (mathfield: MathLive.Mathfield, direction) => {
             let directionVector =
@@ -202,14 +206,14 @@ export default defineComponent({
          }
          .ML__fieldcontainer__field {
           min-height: 12px  !important;
-          padding: 0px; 
+          padding: 0px;
          }`
           mathfield.value.shadowRoot?.appendChild?.(MLfieldcontainerCustomStyle)
 
           // Make mathfield thinner
           const shorterMathfieldCustomStyle = document.createElement('style')
           shorterMathfieldCustomStyle.innerHTML = `.ML__fieldcontainer__field {
-          padding: 0px !important; 
+          padding: 0px !important;
          }`
           mathfield.value.shadowRoot?.appendChild?.(shorterMathfieldCustomStyle)
         }

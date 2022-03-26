@@ -10,14 +10,64 @@
             <a-button ghost style="height: 36px; color: black">File</a-button>
             <template #overlay>
               <a-menu>
-                <a-menu-item @click="UI.fileInterface.promptNewFile()">
-                  <a :style="{ color: 'black' }">New</a>
+                <a-menu-item @click="UI.fileInterface.promptNewFile()"> New </a-menu-item>
+                <a-menu-item @click="UI.fileInterface.openFileOpenModal()">Open... </a-menu-item>
+                <a-menu-item @click="UI.fileInterface.openFileSaveModal()">Save as... </a-menu-item>
+                <!-- <a-menu-item @click="UI.promptCloseFile()">Close</a-menu-item> -->
+              </a-menu>
+            </template>
+          </a-dropdown>
+          <a-dropdown placement="bottomLeft" :trigger="['click']">
+            <a-button ghost style="height: 36px; color: black">Edit</a-button>
+            <template #overlay>
+              <a-menu>
+                <a-menu-item @click="() => (UI.fileInterface.documentPrefsModal.value = true)"> Document Preferences </a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown>
+          <a-dropdown placement="bottomLeft" :trigger="['click']" v-on:mousedown="(ev) => {}">
+            <a-button ghost style="height: 36px; color: black">Insert</a-button>
+            <template #overlay>
+              <a-menu>
+                <a-menu-item
+                  @click="
+                    () => {
+                      // TODO: put this somewhere accessible by all menu items && QuantumDocument.vue
+                      let document = docManager.currentDocument.value
+                      let element = document.createElement(ExpressionElementType.typeName, {
+                        position: document.crosshairPosition.value,
+                        resizable: false,
+                      })
+                      document.setFocus(element)
+                    }
+                  "
+                >
+                  Expression
                 </a-menu-item>
-                <a-menu-item @click="UI.fileInterface.openFileOpenModal()">
-                  <a :style="{ color: 'black' }">Open...</a>
+                <a-menu-item
+                  @click="
+                    () => {
+                      let document = docManager.currentDocument.value
+                      let element = document.createElement(LatexElementType.typeName, {
+                        position: document.crosshairPosition.value,
+                        resizable: false,
+                      })
+                      document.setFocus(element)
+                    }
+                  "
+                >
+                  LaTeX
                 </a-menu-item>
-                <a-menu-item @click="UI.fileInterface.openFileSaveModal()">
-                  <a :style="{ color: 'black' }">Save as...</a>
+                <a-menu-item
+                  disabled
+                  @click="
+                    () => {
+                      let element = docManager.currentDocument.value.createElement(ExpressionElementType.typeName, {})
+                      docManager.currentDocument.value.setFocus(element)
+                    }
+                  "
+                >
+                  Scope
                 </a-menu-item>
                 <a-menu-item @click="print()">
                   <a :style="{ color: 'black' }">Print...</a>
@@ -29,12 +79,45 @@
             </template>
           </a-dropdown>
           <a-dropdown placement="bottomLeft" :trigger="['click']">
-            <a-button ghost style="height: 36px; color: black">Edit</a-button>
+            <a-button
+              ghost
+              style="height: 36px; color: black"
+              v-on:mousedown="
+                (ev) => {
+                  ev.preventDefault()
+                  ev.stopPropagation()
+                }
+              "
+              >Σ</a-button
+            >
             <template #overlay>
               <a-menu>
-                <a-menu-item @click="() => (UI.fileInterface.documentPrefsModal.value = true)">
-                  <a :style="{ color: 'black' }">Document Preferences</a>
-                </a-menu-item>
+                <a-sub-menu
+                  v-for="(section, index) in Object.keys(insertables.operators)"
+                  :key="index"
+                  :title="section"
+                  v-on:mousedown="
+                    (ev) => {
+                      ev.preventDefault()
+                      ev.stopPropagation()
+                    }
+                  "
+                >
+                  <a-menu-item
+                    v-for="(op, index) in insertables.operators[section]"
+                    :key="index"
+                    :disabled="!op.enabled"
+                    v-on:mousedown="
+                      (ev) => {
+                        op.action(docManager.currentDocument.value.focusedElementCommands.commands.value)
+                        ev.preventDefault()
+                        ev.stopPropagation()
+                      }
+                    "
+                    >{{ op.name }} ({{ op.tip }})
+                  </a-menu-item>
+                </a-sub-menu>
+                <a-menu-item @click="() => true" disabled> More Expressions... </a-menu-item>
               </a-menu>
             </template>
           </a-dropdown>
@@ -129,6 +212,9 @@
 
 <script lang="ts">
 import { defineComponent, ref, inject, reactive } from 'vue'
+import ExpressionElement, { ExpressionElementType } from './elements/ExpressionElement.vue'
+import LatexElement, { LatexElementType } from './elements/LatexElement.vue'
+import { useFocusedElementCommands, ElementCommands } from '../model/document/elements/element-commands'
 import {
   Button,
   Grid,
@@ -145,6 +231,7 @@ import {
   MenuItem,
   UploadDragger,
   Textarea,
+  SubMenu,
 } from 'ant-design-vue'
 import { InboxOutlined, DownloadOutlined } from '@ant-design/icons-vue'
 import pkg from '../../package.json'
@@ -169,12 +256,197 @@ export default defineComponent({
     'a-modal': Modal,
     'a-menu': Menu,
     'a-menu-item': MenuItem,
+    'a-sub-menu': SubMenu,
     'a-upload-dragger': UploadDragger,
     'a-textarea': Textarea,
   },
   setup(props, context) {
     // const UI = useUI()
     const docManager = useDocumentManager()
+
+    // TODO: place somewhere where within reach of documentation?
+    const insertables = {
+      operators: {
+        Algebra: [
+          {
+            name: '+',
+            tip: 'Addition',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('+'),
+          },
+          {
+            name: '-',
+            tip: 'Subtraction',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('-'),
+          },
+          {
+            name: '⋅',
+            tip: 'Multiplication',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('\\cdot'),
+          },
+          {
+            name: '÷',
+            tip: 'Division',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('\\div'),
+          },
+          {
+            name: '⁄',
+            tip: 'Fraction',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('\\frac'),
+          },
+          {
+            name: 'x²',
+            tip: 'Square',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('^2'),
+          },
+          {
+            name: 'xⁿ',
+            tip: 'Exponent',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('^'),
+          },
+          {
+            name: '√',
+            tip: 'Root',
+            enabled: false,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('\\sqrt'),
+          },
+          {
+            name: '%',
+            tip: 'Percent',
+            enabled: false,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('%'),
+          },
+          {
+            name: '!',
+            tip: 'Factorial',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('!'),
+          },
+        ],
+        Trigonometry: [
+          { name: 'sin', tip: 'Sine', enabled: true, action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('sin(') },
+          {
+            name: 'cos',
+            tip: 'Cosine',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('cos('),
+          },
+          {
+            name: 'tan',
+            tip: 'Tangent',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('tan('),
+          },
+          {
+            name: 'sec',
+            tip: 'Secant',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('sec('),
+          },
+          {
+            name: 'csc',
+            tip: 'Cosecant',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('csc('),
+          },
+          {
+            name: 'cot',
+            tip: 'Cotangent',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('cot('),
+          },
+          {
+            name: 'asin',
+            tip: 'Arcsine',
+            description: 'Inverse Sine function',
+            enabled: false,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('asin('),
+          },
+          {
+            name: 'acos',
+            tip: 'Arccosine',
+            description: 'Inverse Cosine function',
+            enabled: false,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('acos('),
+          },
+          {
+            name: 'atan',
+            tip: 'Arctangent',
+            description: 'Inverse Tangent function',
+            enabled: false,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('atan('),
+          },
+          {
+            name: 'asec',
+            tip: 'Arcsecant',
+            enabled: false,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('asec('),
+          },
+          {
+            name: 'acsc',
+            tip: 'Arccosecant',
+            enabled: false,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('acsc('),
+          },
+          {
+            name: 'acot',
+            tip: 'Arccotangent',
+            enabled: false,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('acot('),
+          },
+          {
+            name: 'sinh',
+            tip: 'Hyperbolic Sine',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('sinh('),
+          },
+          {
+            name: 'cosh',
+            tip: 'Hyperbolic Cosine',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('cosh('),
+          },
+          {
+            name: 'tanh',
+            tip: 'Hyperbolic Tangent',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('tanh('),
+          },
+          {
+            name: 'sech',
+            tip: 'Hyperbolic Secant',
+            enabled: false,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('sech('),
+          },
+          {
+            name: 'csch',
+            tip: 'Hyperbolic Cosecant',
+            enabled: false,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('csch('),
+          },
+          {
+            name: 'coth',
+            tip: 'Hyperbolic Cotangent',
+            enabled: false,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('coth('),
+          },
+        ],
+        Calculus: [
+          { name: 'd/dx', tip: 'Derivative', enabled: false, action: () => '' },
+          { name: '∫dx', tip: 'Integral', enabled: false, action: () => '' },
+        ],
+        Evaluation: [
+          { name: '=', tip: 'Evaluate', enabled: true, action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('=') },
+          { name: '→', tip: 'Solve', enabled: false, action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('.') },
+        ],
+      },
+    }
 
     function download(filename: string, text: string) {
       // defaults
@@ -215,6 +487,9 @@ export default defineComponent({
       download,
       beforeUpload,
       pkg,
+      insertables,
+      ExpressionElementType,
+      LatexElementType,
       print,
     }
   },

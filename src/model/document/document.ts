@@ -2,7 +2,7 @@
 
 import { QuantumElementCreationOptions, QuantumElementType, QuantumElement, JsonType } from './document-element'
 import { Vector2 } from '../vectors'
-import { readonly, shallowReactive, shallowRef, ref, watch, reactive } from 'vue'
+import { readonly, shallowReactive, shallowRef, ref, watch, reactive, Ref } from 'vue'
 import arrayUtils from '../array-utils'
 import { ScopeElementType } from './elements/scope-element'
 import type { ScopeElement } from './elements/scope-element'
@@ -10,6 +10,7 @@ import { ExpressionElementType } from './elements/expression-element'
 import { watchImmediate } from '../reactivity-utils'
 import { deserializeOptions, DocumentOptions, serializeOptions } from './document-options'
 import pkg from '../../../package.json'
+import { useFocusedElementCommands, ElementCommands } from './elements/element-commands'
 
 type SerializedDocument = {
   /**
@@ -44,6 +45,8 @@ export interface UseQuantumDocument<TElements extends QuantumDocumentElementType
    * Shallow reactive elements array
    */
   readonly elements: ReadonlyArray<QuantumElement>
+
+  readonly focusedElementCommands: { commands: Ref<ElementCommands | undefined> }
 
   /**
    * Creates an element with a given type
@@ -106,7 +109,7 @@ export interface UseQuantumDocument<TElements extends QuantumDocumentElementType
   /**
    * Move specified Elements by specified distance
    */
-  moveElements(elements: QuantumElement[], delta: Vector2): void
+  moveElements(elements: Set<QuantumElement>, delta: Vector2): void
 
   /**
    * Move selected Elements by specified distance
@@ -255,6 +258,7 @@ export function useDocument<TElements extends QuantumDocumentElementTypes<readon
     paperStyle: 'standard',
     paperSize: 'A4',
   })
+  const crosshairPosition = ref<Vector2>(new Vector2(2, 2))
 
   const elementRemoveCallbacks = new Map<string, () => void>()
   const elementList = useElementList()
@@ -346,7 +350,7 @@ export function useDocument<TElements extends QuantumDocumentElementTypes<readon
     })
   }
 
-  function moveElements(elements: QuantumElement[], delta: Vector2, limit?: Vector2) {
+  function moveElements(elements: Set<QuantumElement>, delta: Vector2, limit?: Vector2) {
     // TODO: dont let it move outside sheet (thus no longer needing 'interact.modifiers.restrict'?)
     let limited = false
     elements.forEach((element: QuantumElement) => {
@@ -373,10 +377,14 @@ export function useDocument<TElements extends QuantumDocumentElementTypes<readon
     moveElements(elementSelection.selectedElements, delta, limit)
   }
 
+  const focusedElementCommands = useFocusedElementCommands()
+
   return {
     options,
+    crosshairPosition,
     elementTypes: elementTypes,
     elements: elementList.elements,
+    focusedElementCommands,
     createElement,
     deleteElement,
     getElementAt: elementList.getElementAt,
