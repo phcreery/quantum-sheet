@@ -10,10 +10,13 @@
             <a-button ghost style="height: 36px; color: black">File</a-button>
             <template #overlay>
               <a-menu>
-                <a-menu-item @click="UI.fileInterface.promptNewFile()"> New </a-menu-item>
+                <a-menu-item @click="UI.fileInterface.promptNewFile()">New </a-menu-item>
                 <a-menu-item @click="UI.fileInterface.openFileOpenModal()">Open... </a-menu-item>
                 <a-menu-item @click="UI.fileInterface.openFileSaveModal()">Save as... </a-menu-item>
-                <!-- <a-menu-item @click="UI.promptCloseFile()">Close</a-menu-item> -->
+                <a-menu-item @click="print()">Print... </a-menu-item>
+                <!-- <a-menu-item @click="UI.promptCloseFile()">
+                  <a :style="{ color: 'black' }">Close</a>
+                </a-menu-item> -->
               </a-menu>
             </template>
           </a-dropdown>
@@ -69,12 +72,6 @@
                 >
                   Scope
                 </a-menu-item>
-                <a-menu-item @click="print()">
-                  <a :style="{ color: 'black' }">Print...</a>
-                </a-menu-item>
-                <!-- <a-menu-item @click="UI.promptCloseFile()">
-                  <a :style="{ color: 'black' }">Close</a>
-                </a-menu-item> -->
               </a-menu>
             </template>
           </a-dropdown>
