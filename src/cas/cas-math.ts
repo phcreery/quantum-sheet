@@ -1,5 +1,8 @@
-import { Expression } from '@cortex-js/compute-engine'
+// import { Expression } from '@cortex-js/compute-engine'
 import { getExpressionValue, handleExpressionValue } from './mathjson-utils'
+
+import { ComputeEngine, BoxedExpression } from '@cortex-js/compute-engine'
+import { LatexDictionary, Expression } from '@cortex-js/compute-engine/dist/types/math-json'
 
 // TODO: Ask mathlive creator about how to best do stuff like this
 // TODO: Use stuff from here https://github.com/cortex-js/compute-engine/blob/main/src/common/utils.ts
@@ -14,10 +17,13 @@ export function getGetterNames(expression: Expression) {
   function extractGetters(expression: Expression) {
     handleExpressionValue(expression, {
       symbol: (v) => getters.add(v),
-      function: (v) => v.args.forEach((u) => extractGetters(u)),
+      function: (v) => {
+        console.log('handle 4 recursion', v)
+        v.args.forEach((u) => extractGetters(u))
+      },
     })
   }
-
+  console.log('handle 4 no recursion', expression)
   handleExpressionValue(expression, {
     symbol: (v) => getters.add(v),
     function: (v) => {
@@ -27,12 +33,14 @@ export function getGetterNames(expression: Expression) {
         extractGetters(v.args[1])
       } else if (v.head === 'Equal') {
         // Numerical evaluation
+        console.log('handle 4 head=Equal', v)
         extractGetters(v.args[0])
       } else if (v.head === 'Evaluate') {
         // Symbolical evaluation
         extractGetters(v.args[0])
       } else {
-        extractGetters([v.head, ...v.args])
+        // extractGetters([v.head, ...v.args])
+        console.log('uh oh, i need to be fixed')
       }
     },
   })

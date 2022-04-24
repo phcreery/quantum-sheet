@@ -5,7 +5,8 @@ import { cas } from '../../cas'
 import { assert } from '../../assert'
 import { CasCommand, CasExpression } from '../../../cas/cas'
 import { getGetterNames } from '../../../cas/cas-math'
-import { Expression, match, substitute } from '@cortex-js/compute-engine'
+// import { Expression, match, substitute } from '@cortex-js/compute-engine'
+import { LatexDictionary, Expression } from '@cortex-js/compute-engine/dist/types/math-json'
 import { Vector2 } from '../../vectors'
 import { getExpressionValue, handleExpressionValue } from './../../../cas/mathjson-utils'
 import * as Notification from '../../../ui/notification'
@@ -81,6 +82,8 @@ export class ExpressionElement extends QuantumElement {
     if (!this.scope.value) return
     if (!this.hasExpression) return
 
+    console.log('inputExpression', this.expression.value)
+
     this.updateGetters(getGetterNames(this.expression.value))
     this.updateVariables(getVariableNames(this.expression.value))
 
@@ -147,6 +150,7 @@ export class ExpressionElement extends QuantumElement {
    */
   private isCasExpression(expression: Expression): expression is CasExpression {
     // Woah, user defined type guards are fancy https://2ality.com/2020/06/type-guards-assertion-functions-typescript.html#user-defined-type-guards
+    console.log('checking 3')
     const value = getExpressionValue(expression)
     if (value.type === 'function') {
       const { head } = value.value
@@ -159,10 +163,11 @@ export class ExpressionElement extends QuantumElement {
 
   private executeCasExpression(
     expression: CasExpression,
-    gettersData: Map<string, Expression<number>>,
+    gettersData: Map<string, Expression>,
     callback: (result: any | null, resultingExpression: Expression) => void
   ) {
-    const value = getExpressionValue(expression)
+    console.log('checking 1')
+    const value = getExpressionValue(expression as Expression)
     assert(value.type === 'function', 'Expected a function expression')
 
     // Test for nested CAS expressions. This relies on all CAS expressions being ["something", stuff to eval, "Missing"]
@@ -233,7 +238,7 @@ export class ExpressionElement extends QuantumElement {
     }
 
     // TODO: What about very nested evaluate signs? Like `a:=(1+2=)^2`
-
+    console.log('checking 2')
     const value = getExpressionValue(this.expression.value)
     if (value.type === 'function') {
       const { head, args } = value.value

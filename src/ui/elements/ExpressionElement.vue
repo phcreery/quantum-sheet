@@ -8,12 +8,18 @@ import { defineComponent, PropType, ref, watch, shallowRef } from 'vue'
 import { ExpressionElement, ExpressionElementType, ElementType } from '../../model/document/elements/expression-element'
 import 'mathlive/dist/mathlive-fonts.css'
 import MathLive, { MathfieldElement } from 'mathlive'
-import { ElementCommands } from './element-commands'
+// import { ElementCommands } from './element-commands'
 import { Vector2 } from '../../model/vectors'
-import { parse, serialize } from '@cortex-js/compute-engine'
+// import { parse, serialize } from '@cortex-js/compute-engine'
+import { ComputeEngine, Dictionary } from '@cortex-js/compute-engine'
 import { dictionary } from '../../model/mathjson-custom-dictionary'
 
 export { ExpressionElementType }
+
+const ce = new ComputeEngine({
+  dictionaries: dictionary as Readonly<Dictionary>[],
+  // promoteUnknownFunctions: /$^/,
+})
 
 function setMathfieldOptions(mathfield: MathfieldElement) {
   const keybindings = mathfield.getOption('keybindings').concat([
@@ -80,13 +86,16 @@ export default defineComponent({
 
     // Show expression when the document-expression changes
     watch([expressionElement.expression, mathfield], ([value, _]) => {
-      const latex = serialize(value, {
-        multiply: '\\cdot',
-        invisibleMultiply: '\\cdot',
-        invisiblePlus: '+',
-        dictionary: dictionary,
-        groupSeparator: '',
-      })
+      const latex = ce.serialize(
+        value
+        // , {
+        //   multiply: '\\cdot',
+        //   invisibleMultiply: '\\cdot',
+        //   invisiblePlus: '+',
+        //   dictionary: dictionary,
+        //   groupSeparator: '',
+        // }
+      )
 
       mathfield.value?.setValue(latex, {
         suppressChangeNotifications: true,
@@ -98,12 +107,9 @@ export default defineComponent({
      * Evaluate the expression that the user has typed
      */
     function evaluateExpression() {
-      const expression = parse(mathfield.value?.getValue?.('latex') ?? '', {
-        dictionary: dictionary,
-        promoteUnknownFunctions: /$^/,
-      })
+      const expression = ce.parse(mathfield.value?.getValue?.('latex') ?? '')
 
-      console.log('Evaluating ', mathfield.value?.getValue?.('latex'), '(Mathjson form: ', expression, ')')
+      console.log('Evaluating ', mathfield.value?.getValue?.('latex'), '(Mathjson form: ', expression.json, ')', expression)
       // TODO: Verify that the expression has no issues
       // TODO: Regarding multi letter variables
       // - Add all known variables point to dictionary
@@ -111,7 +117,8 @@ export default defineComponent({
       // TODO: What about multi letter functions?
       // TODO: Add user-defined stuff to dictionary
 
-      expressionElement.inputExpression(expression)
+      // TODO: Pass entire expression (BoxedExpression) as boxed expresssion here
+      expressionElement.inputExpression(expression.json)
     }
 
     // Create the mathfield

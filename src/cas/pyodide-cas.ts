@@ -1,7 +1,9 @@
 import type {} from 'vite'
 import type { CasCommand } from './cas'
 import { getAllGetterNames, useEncoder } from './cas-math'
-import { Expression, format } from '@cortex-js/compute-engine'
+// import { Expression, format } from '@cortex-js/compute-engine'
+import { ComputeEngine, BoxedExpression } from '@cortex-js/compute-engine'
+import { LatexDictionary, Expression } from '@cortex-js/compute-engine/dist/types/math-json'
 
 export type WorkerMessage =
   | {
@@ -172,6 +174,7 @@ function usePythonConverter() {
 
   // TODO: Options (rational numbers)
   function expressionToPython(expression: any): string {
+    console.log('expression to python', expression)
     if (Array.isArray(expression)) {
       // Handle Functions (Add, Power, Sin, etc.)
       expression = expression.slice() // Make a copy so that we can safely modify the expression
@@ -223,10 +226,11 @@ function usePythonConverter() {
     decodeNames,
     expressionToPython: (expression: any) =>
       expressionToPython(
-        format(expression, [
-          // Sympy doesn't accept all operations https://docs.sympy.org/latest/tutorial/manipulation.html
-          'canonical-subtract',
-        ])
+        // format(expression, [
+        //   // Sympy doesn't accept all operations https://docs.sympy.org/latest/tutorial/manipulation.html
+        //   'canonical-subtract',
+        // ])
+        expression //.canonical
       ),
     KnownLatexFunctions,
   }

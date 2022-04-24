@@ -1,9 +1,17 @@
-import { Expression } from '@cortex-js/compute-engine'
+// import { Expression } from '@cortex-js/compute-engine'
+// import { Expression } from '../../math-json/math-json-format'
 
-export type ExpressionValue<T extends number = number> =
+import { ComputeEngine, BoxedExpression } from '@cortex-js/compute-engine'
+import { LatexDictionary, Expression } from '@cortex-js/compute-engine/dist/types/math-json'
+
+// const ce = new ComputeEngine()
+
+export const dictionary = <LatexDictionary>[]
+
+export type ExpressionValue =
   | {
       type: 'number'
-      value: number | bigint | string
+      value: number | bigint | string | null
     }
   | {
       type: 'symbol'
@@ -17,32 +25,35 @@ export type ExpressionValue<T extends number = number> =
       type: 'function'
       value: {
         /** The function name or an expression in the case of function composition, like [["InverseFunction", "Sin"], "x"] */
-        head: string | Expression<T>[]
-        args: Expression<T>[]
+        head: string | Expression
+        args: Expression[]
       }
     }
   | {
       type: 'dictionary'
       value: {
-        [key: string]: Expression<T>
+        [key: string]: Expression
       }
     }
 
-export function handleExpressionValue<T extends number = number>(
-  expr: Expression<T>,
+export function handleExpressionValue(
+  expr: Expression,
   handler: {
     number?: (value: number | bigint | string) => void
     symbol?: (value: string) => void
     string?: (value: string) => void
-    function?: (value: { head: string | Expression<T>[]; args: Expression<T>[] }) => void
-    dictionary?: (value: { [key: string]: Expression<T> }) => void
+    function?: (value: { head: string | Expression[]; args: Expression[] }) => void
+    dictionary?: (value: { [key: string]: Expression }) => void
   }
 ) {
+  console.log('checking 4', expr)
   const value = getExpressionValue(expr)
   handler[value.type]?.(value.value as any)
 }
 
-export function getExpressionValue<T extends number = number>(expr: Expression<T>): ExpressionValue<T> {
+export function getExpressionValue(expr: Expression): ExpressionValue {
+  // let expr = exp.json
+  console.log('getting expression value type', expr)
   // See https://cortexjs.io/math-json/
   switch (typeof expr) {
     case 'bigint': {
@@ -169,4 +180,54 @@ export function getExpressionValue<T extends number = number>(expr: Expression<T
       throw new Error('Expression contained an illegal value ' + expr)
     }
   }
+
+  // if (expr === undefined) {
+  //   throw new Error('Expression unknown: ' + expr)
+  // }
+  // try {
+  //   if (expr.isNumber) {
+  //     if (expr.isNaN) {
+  //       return {
+  //         type: 'number',
+  //         value: NaN,
+  //       }
+  //     }
+  //     if (expr.isInfinity) {
+  //       return {
+  //         type: 'number',
+  //         value: Infinity,
+  //       }
+  //     }
+  //     return {
+  //       type: 'number',
+  //       value: expr.asFloat,
+  //     }
+  //   }
+  //   if (expr.symbol) {
+  //     return {
+  //       type: 'symbol',
+  //       value: expr.symbol,
+  //     }
+  //   }
+  //   if (expr.string) {
+  //     return {
+  //       type: 'string',
+  //       value: expr.string,
+  //     }
+  //   }
+  //   if (expr.head === 'Equal') {
+  //     return {
+  //       type: 'function',
+  //       value: { head: expr.head, args: expr.json.slice(1) },
+  //     }
+  //   }
+  //   if (expr.nops > 0) {
+
+  //     console.log('uh oh, todo')
+  //   }
+  // } catch (error) {
+  //   console.error(error)
+  //   throw new Error('Expression contained an illegal value ' + expr)
+  // }
+  // throw new Error('Expression unknown ' + expr)
 }

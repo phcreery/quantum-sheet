@@ -37,6 +37,11 @@ export interface UseQuantumDocument<TElements extends QuantumDocumentElementType
   readonly options: DocumentOptions
 
   /**
+   *
+   */
+  readonly crosshairPosition: Ref<Vector2>
+
+  /**
    * Which elements the document contains
    */
   readonly elementTypes: Readonly<TElements>

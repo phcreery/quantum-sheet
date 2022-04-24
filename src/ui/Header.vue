@@ -439,8 +439,24 @@ export default defineComponent({
           { name: '∫dx', tip: 'Integral', enabled: false, action: () => '' },
         ],
         Evaluation: [
-          { name: '=', tip: 'Evaluate', enabled: true, action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('=') },
-          { name: '→', tip: 'Solve', enabled: false, action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('.') },
+          {
+            name: '=',
+            tip: 'Evaluate',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('='),
+          },
+          {
+            name: '→',
+            tip: 'Solve',
+            enabled: true,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.('Evaluate'),
+          },
+          {
+            name: '→',
+            tip: 'Simplify',
+            enabled: false,
+            action: (focusedElementCommands: ElementCommands) => focusedElementCommands?.insert?.(''),
+          },
         ],
       },
     }
