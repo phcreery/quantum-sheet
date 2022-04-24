@@ -46,14 +46,11 @@ export function handleExpressionValue(
     dictionary?: (value: { [key: string]: Expression }) => void
   }
 ) {
-  console.log('checking 4', expr)
   const value = getExpressionValue(expr)
   handler[value.type]?.(value.value as any)
 }
 
 export function getExpressionValue(expr: Expression): ExpressionValue {
-  // let expr = exp.json
-  console.log('getting expression value type', expr)
   // See https://cortexjs.io/math-json/
   switch (typeof expr) {
     case 'bigint': {

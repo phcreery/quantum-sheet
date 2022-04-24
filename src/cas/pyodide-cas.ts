@@ -174,7 +174,6 @@ function usePythonConverter() {
 
   // TODO: Options (rational numbers)
   function expressionToPython(expression: any): string {
-    console.log('expression to python', expression)
     if (Array.isArray(expression)) {
       // Handle Functions (Add, Power, Sin, etc.)
       expression = expression.slice() // Make a copy so that we can safely modify the expression

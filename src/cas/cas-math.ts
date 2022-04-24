@@ -18,12 +18,10 @@ export function getGetterNames(expression: Expression) {
     handleExpressionValue(expression, {
       symbol: (v) => getters.add(v),
       function: (v) => {
-        console.log('handle 4 recursion', v)
         v.args.forEach((u) => extractGetters(u))
       },
     })
   }
-  console.log('handle 4 no recursion', expression)
   handleExpressionValue(expression, {
     symbol: (v) => getters.add(v),
     function: (v) => {
@@ -33,7 +31,6 @@ export function getGetterNames(expression: Expression) {
         extractGetters(v.args[1])
       } else if (v.head === 'Equal') {
         // Numerical evaluation
-        console.log('handle 4 head=Equal', v)
         extractGetters(v.args[0])
       } else if (v.head === 'Evaluate') {
         // Symbolical evaluation
